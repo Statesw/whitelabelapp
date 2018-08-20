@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--Margin between items-->
+    <dimen name="card_margin">4dp</dimen>
+    <!--Roundness of edge-->
+    <dimen name="card_photo_radius">2dp</dimen>
+    <!--Item height-->
+    <dimen name="photo_cover_height">100dp</dimen>
+    <!--Padding from photo to title-->
+    <dimen name="photo_title_padding">2dp</dimen>
+    <!--Each item's lower padding-->
+    <dimen name="item_count_padding_bottom">2dp</dimen>
+
+
+
+</resources>

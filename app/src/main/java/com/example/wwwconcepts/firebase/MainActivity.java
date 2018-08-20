@@ -1,100 +1,94 @@
 package com.example.wwwconcepts.firebase;
 
-import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.example.wwwconcepts.firebase.Fragments.ProductsFragment;
+import com.example.wwwconcepts.firebase.Fragments.ProfileFragment;
+import com.example.wwwconcepts.firebase.Fragments.PromotionsFragment;
 
 
-public class MainActivity extends AppCompatActivity {
 
-    private Button signOutBtn;
-    private Button testBtn;
-    private FirebaseAuth auth;
-    private static final String TAG = "MainActivity";
+public class MainActivity extends AppCompatActivity implements ProductsFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListener, PromotionsFragment.OnFragmentInteractionListener{
 
+    private ActionBar toolbar;
+    private RecyclerView productsRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Get Firebase auth instance
-        auth = FirebaseAuth.getInstance();
+        toolbar = getSupportActionBar();
 
-
-        DatabaseReference aDatabase = FirebaseDatabase.getInstance().getReference("products");
-
-//        // Creating new user node, which returns the unique key value: push adds a unique key item on the list
-//        // new user node would be /products/$productId/
-//                 String productId = aDatabase.push().getKey();
-//
-//        // creating user object
-//                    Product product = new Product("Title", "imageurl", "$2");
-//        // pushing product to 'products' node using the userId
-//                    aDatabase.child(productId).setValue(product);
-
-//        DatabaseReference testDatabase = aDatabase.child("test").child("2t").child("3t");
-//        testDatabase.setValue("item");
-
-
-        signOutBtn = (Button) findViewById(R.id.signOutBtn);
-        signOutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                auth.signOut();
-                startActivity(new Intent(MainActivity.this, LoginActivity.class));
-
-            }
-        });
-
-
-        testBtn = (Button) findViewById(R.id.testBtn);
-        testBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                FirebaseDatabase db = FirebaseDatabase.getInstance();
-                DatabaseReference ref = db.getReference("users").child("test").child("a"); // Key
-
-
-                // Attach listener
-                ref.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        // Retrieve latest value
-                        String test = dataSnapshot.getValue(String.class);
-                        EditText titleEditText = (EditText) findViewById(R.id.titleEditText);
-                        titleEditText.setText(test);
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        // Error handling
-                        EditText titleEditText = (EditText) findViewById(R.id.titleEditText);
-                        titleEditText.setText("Error");
-                    }
-                });
-
-            }
-        });
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        navigation.setOnNavigationItemReselectedListener(mOnNavigationItemReselectedListener);
 
 
 
-
+        toolbar.setTitle("Shop");
+        loadFragment(new ProductsFragment());
     }
 
+    private BottomNavigationView.OnNavigationItemReselectedListener mOnNavigationItemReselectedListener = new BottomNavigationView.OnNavigationItemReselectedListener() {
+        @Override
+        public void onNavigationItemReselected(@NonNull MenuItem menuItem) {
+            productsRecyclerView = (RecyclerView) findViewById(R.id.productsRecyclerView);
+            productsRecyclerView.smoothScrollToPosition(0);
+        }
+    };
+
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            Fragment fragment;
+
+            switch (item.getItemId()) {
+                case R.id.navigation_products:
+                    fragment = new ProductsFragment();
+                    loadFragment(fragment);
+                    toolbar.setTitle("Shop");
+
+                    return true;
+                case R.id.navigation_promotions:
+                    fragment = new PromotionsFragment();
+                    loadFragment(fragment);
+                    toolbar.setTitle("Discounts");
+                    return true;
+                case R.id.navigation_profile:
+                    fragment = new ProfileFragment();
+                    loadFragment(fragment);
+                    toolbar.setTitle("Profile");
+                    return true;
+            }
+            return false;
+        }
+    };
+
+
+
+
+    private void loadFragment(Fragment fragment) {
+        // load fragment
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
 }
-
-
-
