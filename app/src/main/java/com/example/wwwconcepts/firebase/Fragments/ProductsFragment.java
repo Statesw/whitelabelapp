@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -206,12 +205,17 @@ public class ProductsFragment extends Fragment {
                     .into(holder.thumbnail);
 
             card_view = (CardView) holder.itemView.findViewById(R.id.card_view);
+
             card_view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                    BottomNavigationView navigation = (BottomNavigationView) getActivity().findViewById(R.id.navigation);
+                    TextView title = v.findViewById(R.id.titleTextView);
+                    String titleString = title.getText().toString();
                     ProductDetailsFragment nextFrag = new ProductDetailsFragment();
+                    Bundle args = new Bundle();
+                    args.putString("title", titleString);
+                    nextFrag.setArguments(args);
+
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.frame_container, nextFrag, "tag")
                             .addToBackStack(null)

@@ -63,6 +63,7 @@ public class ProductDetailsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
@@ -72,6 +73,9 @@ public class ProductDetailsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_product_details, container, false);
         itemNameTextView = (TextView) view.findViewById(R.id.itemNameTextView);
         priceTextView = (TextView) view.findViewById(R.id.priceTextView);
+
+        Bundle bundle = getArguments();
+        itemNameTextView.setText(bundle.getString("title"));
 
 
         return view;
