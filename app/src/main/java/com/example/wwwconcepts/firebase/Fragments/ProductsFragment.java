@@ -3,9 +3,10 @@ package com.example.wwwconcepts.firebase.Fragments;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -37,11 +38,16 @@ import java.util.List;
 public class ProductsFragment extends Fragment {
 
     private static final String TAG = ProductsFragment.class.getSimpleName();
-    private static final String URL = "https://api.androidhive.info/json/movies_2017.json";
+    private static final String URL = "https://loginregister-8754b.firebaseio.com/products.json";
 
     private RecyclerView productsRecyclerView;
     private List<Product> productList;
     private StoreAdapter mAdapter;
+    private CardView card_view;
+
+    public interface OnFragmentInteractionListener {
+    }
+
 
     public ProductsFragment() {
         // Required empty public constructor
@@ -64,6 +70,7 @@ public class ProductsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_products, container, false);
+
 
         productsRecyclerView = view.findViewById(R.id.productsRecyclerView);
         productList = new ArrayList<>();
@@ -99,6 +106,7 @@ public class ProductsFragment extends Fragment {
 
                         // refreshing recycler view
                         mAdapter.notifyDataSetChanged();
+
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -111,6 +119,8 @@ public class ProductsFragment extends Fragment {
 
         VolleyApplication.getInstance().addToRequestQueue(request);
     }
+
+
 
     public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
 
@@ -157,7 +167,7 @@ public class ProductsFragment extends Fragment {
 
     class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.MyViewHolder> {
         private Context context;
-        private List<Product> movieList;
+        private List<Product> itemList;
 
         public class MyViewHolder extends RecyclerView.ViewHolder {
             public TextView name, price;
@@ -165,16 +175,16 @@ public class ProductsFragment extends Fragment {
 
             public MyViewHolder(View view) {
                 super(view);
-                name = view.findViewById(R.id.title);
-                price = view.findViewById(R.id.price);
-                thumbnail = view.findViewById(R.id.thumbnail);
+                name = view.findViewById(R.id.titleTextView);
+                price = view.findViewById(R.id.priceTextView);
+                thumbnail = view.findViewById(R.id.thumbnailImageView);
             }
         }
 
 
-        public StoreAdapter(Context context, List<Product> movieList) {
+        public StoreAdapter(Context context, List<Product> itemList) {
             this.context = context;
-            this.movieList = movieList;
+            this.itemList = itemList;
         }
 
         @Override
@@ -187,24 +197,35 @@ public class ProductsFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(MyViewHolder holder, final int position) {
-            final Product product = movieList.get(position);
+            final Product product = itemList.get(position);
             holder.name.setText(product.getTitle());
             holder.price.setText(product.getPrice());
 
             Glide.with(context)
                     .load(product.getImage())
                     .into(holder.thumbnail);
+
+            card_view = (CardView) holder.itemView.findViewById(R.id.card_view);
+            card_view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    BottomNavigationView navigation = (BottomNavigationView) getActivity().findViewById(R.id.navigation);
+                    ProductDetailsFragment nextFrag = new ProductDetailsFragment();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.frame_container, nextFrag, "tag")
+                            .addToBackStack(null)
+                            .commit();
+
+                }
+            });
+
         }
 
         @Override
         public int getItemCount() {
-            return movieList.size();
+            return itemList.size();
         }
     }
 
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
 }

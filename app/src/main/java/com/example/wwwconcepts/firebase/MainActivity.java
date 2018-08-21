@@ -11,13 +11,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 
+import com.example.wwwconcepts.firebase.Fragments.ProductDetailsFragment;
 import com.example.wwwconcepts.firebase.Fragments.ProductsFragment;
 import com.example.wwwconcepts.firebase.Fragments.ProfileFragment;
 import com.example.wwwconcepts.firebase.Fragments.PromotionsFragment;
 
 
-
-public class MainActivity extends AppCompatActivity implements ProductsFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListener, PromotionsFragment.OnFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity implements ProductDetailsFragment.OnFragmentInteractionListener, ProductsFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListener, PromotionsFragment.OnFragmentInteractionListener{
 
     private ActionBar toolbar;
     private RecyclerView productsRecyclerView;
@@ -29,9 +29,12 @@ public class MainActivity extends AppCompatActivity implements ProductsFragment.
 
         toolbar = getSupportActionBar();
 
+
+
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigation.setOnNavigationItemReselectedListener(mOnNavigationItemReselectedListener);
+
 
 
 
@@ -43,7 +46,20 @@ public class MainActivity extends AppCompatActivity implements ProductsFragment.
         @Override
         public void onNavigationItemReselected(@NonNull MenuItem menuItem) {
             productsRecyclerView = (RecyclerView) findViewById(R.id.productsRecyclerView);
-            productsRecyclerView.smoothScrollToPosition(0);
+            Fragment fragment;
+            switch(menuItem.getItemId()){
+                case R.id.navigation_products:
+                    try{
+                    productsRecyclerView.smoothScrollToPosition(0);}
+                    catch(Exception e){ //try to scroll to top, reload fragment if in productdetailsfragment
+                        fragment = new ProductsFragment();
+                        loadFragment(fragment);
+                        toolbar.setTitle("Shop");
+                    }
+                case R.id.navigation_profile:
+                case R.id.navigation_promotions:
+            }
+
         }
     };
 
@@ -91,4 +107,7 @@ public class MainActivity extends AppCompatActivity implements ProductsFragment.
     public void onFragmentInteraction(Uri uri) {
 
     }
+
+
+
 }

@@ -1,32 +1,25 @@
 package com.example.wwwconcepts.firebase.Fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.TextView;
 
-import com.example.wwwconcepts.firebase.LoginActivity;
 import com.example.wwwconcepts.firebase.R;
-import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link ProfileFragment.OnFragmentInteractionListener} interface
+ * {@link ProductDetailsFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link ProfileFragment#newInstance} factory method to
+ * Use the {@link ProductDetailsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProfileFragment extends Fragment {
-
-    private FirebaseAuth auth;
-
-
+public class ProductDetailsFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -37,8 +30,11 @@ public class ProfileFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private TextView itemNameTextView, priceTextView;
 
-    public ProfileFragment() {
+
+
+    public ProductDetailsFragment() {
         // Required empty public constructor
     }
 
@@ -48,11 +44,11 @@ public class ProfileFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment ProfileFragment.
+     * @return A new instance of fragment ProductDetailsFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ProfileFragment newInstance(String param1, String param2) {
-        ProfileFragment fragment = new ProfileFragment();
+    public static ProductDetailsFragment newInstance(String param1, String param2) {
+        ProductDetailsFragment fragment = new ProductDetailsFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -73,22 +69,12 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_product_details, container, false);
+        itemNameTextView = (TextView) view.findViewById(R.id.itemNameTextView);
+        priceTextView = (TextView) view.findViewById(R.id.priceTextView);
 
-        auth = FirebaseAuth.getInstance();
-        View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        final Button signOutBtn = (Button) view.findViewById(R.id.signOutBtn);
-        signOutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signOutBtn.setText("CLICKED");
-                auth.signOut();
-                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                startActivity(intent);
 
-            }
-        });
         return view;
-
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -115,6 +101,7 @@ public class ProfileFragment extends Fragment {
         mListener = null;
     }
 
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -128,5 +115,11 @@ public class ProfileFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+
+    public void updateProductDetails(String title, String imageUrl, String price){
+        itemNameTextView.setText(title);
+        priceTextView.setText(price);
     }
 }
