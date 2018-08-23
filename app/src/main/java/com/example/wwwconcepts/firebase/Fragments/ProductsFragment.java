@@ -4,31 +4,30 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.bumptech.glide.Glide;
-import com.example.wwwconcepts.firebase.Product;
+import com.example.wwwconcepts.firebase.POJOs.Product;
 import com.example.wwwconcepts.firebase.R;
-import com.example.wwwconcepts.firebase.VolleyApplication;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import org.json.JSONArray;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +42,11 @@ public class ProductsFragment extends Fragment {
     private List<Product> productList;
     private StoreAdapter mAdapter;
     private CardView card_view;
+    private Button addBtn;
 
+    List<Product> products;
+
+    DatabaseReference databaseReference;
     public interface OnFragmentInteractionListener {
     }
 
@@ -82,42 +85,88 @@ public class ProductsFragment extends Fragment {
         productsRecyclerView.setAdapter(mAdapter);
         productsRecyclerView.setNestedScrollingEnabled(false);
 
-        fetchStoreItems();
+//        fetchStoreItems();
+
+        databaseReference = FirebaseDatabase.getInstance().getReference("products");
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                productList.clear();
+                //iterating through all the nodes
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    //getting
+                    Product product = postSnapshot.getValue(Product.class);
+                    //adding to the list
+                    productList.add(product);
+                }
+
+                //creating adapter
+//                ProductList productAdapter = new ProductList(getActivity(), products);
+                StoreAdapter productAdapter = new StoreAdapter(getActivity(), productList);
+                //attaching adapter to the listview
+                productsRecyclerView.setAdapter(productAdapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+        final EditText titleEditText = view.findViewById(R.id.titleEditText);
+        final EditText imageEditText = view.findViewById(R.id.imageEditText);
+        final EditText priceEditText = view.findViewById(R.id.priceEditText);
+        addBtn = (Button) view.findViewById(R.id.addBtn);
+        addBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String titleStr = titleEditText.getText().toString();
+                String imageStr = imageEditText.getText().toString();
+                String priceStr = priceEditText.getText().toString();
+                Product tempprod = new Product(titleStr,imageStr,priceStr);
+                String key = databaseReference.push().getKey();
+                databaseReference.child(key).setValue(tempprod);
+                Toast.makeText(getActivity(), "Data Posted!", Toast.LENGTH_LONG).show();
+
+            }
+        });
 
         return view;
     }
 
-    private void fetchStoreItems() {
-        JsonArrayRequest request = new JsonArrayRequest(URL,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        if (response == null) {
-                            Toast.makeText(getActivity(), "Couldn't fetch the store items! Pleas try again.", Toast.LENGTH_LONG).show();
-                            return;
-                        }
-
-                        List<Product> items = new Gson().fromJson(response.toString(), new TypeToken<List<Product>>() {
-                        }.getType());
-
-                        productList.clear();
-                        productList.addAll(items);
-
-                        // refreshing recycler view
-                        mAdapter.notifyDataSetChanged();
-
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                // error in getting json
-                Log.e(TAG, "Error: " + error.getMessage());
-                Toast.makeText(getActivity(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        VolleyApplication.getInstance().addToRequestQueue(request);
-    }
+//    private void fetchStoreItems() {
+//        JsonArrayRequest request = new JsonArrayRequest(URL,
+//                new Response.Listener<JSONArray>() {
+//                    @Override
+//                    public void onResponse(JSONArray response) {
+//                        if (response == null) {
+//                            Toast.makeText(getActivity(), "Couldn't fetch the store items! Pleas try again.", Toast.LENGTH_LONG).show();
+//                            return;
+//                        }
+//
+//                        List<Product> items = new Gson().fromJson(response.toString(), new TypeToken<List<Product>>() {
+//                        }.getType());
+//
+//                        productList.clear();
+//                        productList.addAll(items);
+//
+//                        // refreshing recycler view
+//                        mAdapter.notifyDataSetChanged();
+//
+//                    }
+//                }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                // error in getting json
+//                Log.e(TAG, "Error: " + error.getMessage());
+//                Toast.makeText(getActivity(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        VolleyApplication.getInstance().addToRequestQueue(request);
+//    }
 
 
 
@@ -210,10 +259,15 @@ public class ProductsFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     TextView title = v.findViewById(R.id.titleTextView);
+                    TextView price = v.findViewById(R.id.priceTextView);
                     String titleString = title.getText().toString();
+                    String priceString = price.getText().toString();
+                    String imageUrl = product.getImage();
                     ProductDetailsFragment nextFrag = new ProductDetailsFragment();
                     Bundle args = new Bundle();
                     args.putString("title", titleString);
+                    args.putString("price", priceString);
+                    args.putString("image", imageUrl);
                     nextFrag.setArguments(args);
 
                     getActivity().getSupportFragmentManager().beginTransaction()
@@ -223,6 +277,7 @@ public class ProductsFragment extends Fragment {
 
                 }
             });
+
 
         }
 

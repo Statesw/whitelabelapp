@@ -22,7 +22,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity"
+                    android:windowSoftInputMode="adjustPan"></activity> // hide bottomnavbar when keyboard is open
         <activity android:name=".SignupActivity"></activity>
         <activity android:name=".ResetPasswordActivity"></activity>
     </application>

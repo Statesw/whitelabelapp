@@ -1,4 +1,4 @@
-package com.example.wwwconcepts.firebase;
+package com.example.wwwconcepts.firebase.POJOs;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
@@ -14,9 +14,9 @@ public class Product {
     public Product() {
     }
 
-    public Product(String name, String email, String price) {
+    public Product(String name, String image, String price) {
         this.title = name;
-        this.image = email;
+        this.image = image;
         this.price = price;
     }
 

@@ -1,4 +1,4 @@
-package com.example.wwwconcepts.firebase;
+package com.example.wwwconcepts.firebase.POJOs;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 

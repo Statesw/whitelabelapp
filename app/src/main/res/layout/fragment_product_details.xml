@@ -26,15 +26,16 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:id="@+id/imageView"
-                    android:layout_width="471dp"
-                    android:layout_height="396dp"
+                    android:id="@+id/prodDetailsImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="350dp"
                     android:layout_marginEnd="8dp"
                     android:layout_marginLeft="8dp"
                     android:layout_marginRight="8dp"
                     android:layout_marginStart="8dp"
                     android:adjustViewBounds="false"
                     android:src="@android:drawable/sym_def_app_icon"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -52,7 +53,7 @@
                 android:textSize="27sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imageView" />
+                app:layout_constraintTop_toBottomOf="@+id/prodDetailsImage" />
 
             <TextView
                 android:id="@+id/priceTextView"
@@ -103,7 +104,7 @@
                 android:layout_marginTop="8dp"
                 android:text="This is the paragraph of description. Possible things to list here include, history of the product, whereabouts, production place and date. Also, the following text should be able to be retrieved from the database. This is just a bunch of dummy @string/common_google_play_services_enable_text"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imageView" />
+                app:layout_constraintTop_toBottomOf="@+id/prodDetailsImage" />
 
             <TextView
                 android:id="@+id/textView3"
@@ -116,11 +117,30 @@
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imageView" />
+                app:layout_constraintTop_toBottomOf="@+id/prodDetailsImage" />
 
             <ListView
+                android:id="@+id/reviewsListView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:layout_marginLeft="15dp" />
+
+            <EditText
+                android:id="@+id/reviewEditText"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Write Review"
+                android:inputType="textPersonName"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/reviewBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Post"
+                android:visibility="visible" />
 
         </LinearLayout>
     </ScrollView>

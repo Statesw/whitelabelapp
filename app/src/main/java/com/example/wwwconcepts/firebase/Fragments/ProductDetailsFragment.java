@@ -3,13 +3,33 @@ package com.example.wwwconcepts.firebase.Fragments;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.example.wwwconcepts.firebase.POJOs.Review;
+import com.example.wwwconcepts.firebase.POJOs.ReviewList;
 import com.example.wwwconcepts.firebase.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,8 +51,16 @@ public class ProductDetailsFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private TextView itemNameTextView, priceTextView;
+    private ImageView prodDetailsImage;
 
+    private EditText reviewEditText;
+    private Button reviewBtn;
+    private ListView reviewsListView;
 
+    List<Review> reviews;
+
+    DatabaseReference databaseReviews;
+    private FirebaseAuth auth;
 
     public ProductDetailsFragment() {
         // Required empty public constructor
@@ -69,24 +97,64 @@ public class ProductDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        auth = FirebaseAuth.getInstance();
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_product_details, container, false);
         itemNameTextView = (TextView) view.findViewById(R.id.itemNameTextView);
         priceTextView = (TextView) view.findViewById(R.id.priceTextView);
-
         Bundle bundle = getArguments();
         itemNameTextView.setText(bundle.getString("title"));
+        priceTextView.setText(bundle.getString("price"));
+        prodDetailsImage = (ImageView) view.findViewById(R.id.prodDetailsImage);
+
+        Glide.with(getActivity().getApplicationContext())
+                .load(bundle.getString("image"))
+                .into(prodDetailsImage);
+
+        databaseReviews = FirebaseDatabase.getInstance().getReference("reviews");
+        reviewEditText = (EditText) view.findViewById(R.id.reviewEditText);
+        reviewBtn = (Button) view.findViewById(R.id.reviewBtn);
+        reviewsListView = (ListView) view.findViewById(R.id.reviewsListView);
+        reviews = new ArrayList<>();
+
+        reviewBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addReview();
+            }
+        });
+
+
+        databaseReviews.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                reviews.clear();
+
+                //iterating through all the nodes
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    //getting
+                    Review review = postSnapshot.getValue(Review.class);
+                    //adding to the list
+                    reviews.add(review);
+                }
+
+                //creating adapter
+                ReviewList reviewAdapter = new ReviewList(getActivity(), reviews);
+                //attaching adapter to the listview
+                reviewsListView.setAdapter(reviewAdapter);
+                setListViewHeightBasedOnChildren(reviewsListView);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
 
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -121,9 +189,58 @@ public class ProductDetailsFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
+    /**
+     * This method is saving a new artist to the
+     * Firebase Realtime Database
+     * */
+    private void addReview(){
+        String reviewPost = reviewEditText.getText().toString().trim();
+        String username = auth.getCurrentUser().getEmail();
+        //checking if the value is provided
+        if (!TextUtils.isEmpty(reviewPost)) {
 
-    public void updateProductDetails(String title, String imageUrl, String price){
-        itemNameTextView.setText(title);
-        priceTextView.setText(price);
+            //getting a unique id using push().getKey() method
+            //it will create a unique id and we will use it as the Primary Key for our Artist
+            String id = databaseReviews.push().getKey();
+
+            //creating an Artist Object
+            Review review = new Review(id, username, reviewPost);
+
+            //Saving the Artist
+            databaseReviews.child(id).setValue(review);
+
+            //setting edittext to blank again
+            reviewEditText.setText("");
+
+            //displaying a success toast
+
+            Toast.makeText(getActivity(), "Review added successfully!", Toast.LENGTH_LONG).show();
+        } else {
+            //if the value is not given displaying a toast
+            Toast.makeText(getActivity(), "Please enter a name", Toast.LENGTH_LONG).show();
+        }
+
     }
+
+// to enable listview on scrollview
+    public static void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
+
+        int totalHeight = 0;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+        listView.requestLayout();
+    }
+
 }
