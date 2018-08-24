@@ -23,6 +23,7 @@ public class ReviewList extends ArrayAdapter<Review> {
     }
 
 
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();

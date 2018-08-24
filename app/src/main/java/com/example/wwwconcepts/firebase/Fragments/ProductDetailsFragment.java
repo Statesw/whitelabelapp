@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.wwwconcepts.firebase.POJOs.Product;
 import com.example.wwwconcepts.firebase.POJOs.Review;
 import com.example.wwwconcepts.firebase.POJOs.ReviewList;
 import com.example.wwwconcepts.firebase.R;
@@ -57,9 +58,11 @@ public class ProductDetailsFragment extends Fragment {
     private Button reviewBtn;
     private ListView reviewsListView;
 
+    private Product currentProduct;
+
     List<Review> reviews;
 
-    DatabaseReference databaseReviews;
+    DatabaseReference databaseReviews, productReference;
     private FirebaseAuth auth;
 
     public ProductDetailsFragment() {
@@ -97,21 +100,26 @@ public class ProductDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         auth = FirebaseAuth.getInstance();
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_product_details, container, false);
         itemNameTextView = (TextView) view.findViewById(R.id.itemNameTextView);
         priceTextView = (TextView) view.findViewById(R.id.priceTextView);
+        prodDetailsImage = (ImageView) view.findViewById(R.id.prodDetailsImage);
         Bundle bundle = getArguments();
         itemNameTextView.setText(bundle.getString("title"));
         priceTextView.setText(bundle.getString("price"));
-        prodDetailsImage = (ImageView) view.findViewById(R.id.prodDetailsImage);
-
         Glide.with(getActivity().getApplicationContext())
                 .load(bundle.getString("image"))
                 .into(prodDetailsImage);
 
-        databaseReviews = FirebaseDatabase.getInstance().getReference("reviews");
+        String productId = bundle.getString("productId");
+        productReference = FirebaseDatabase.getInstance().getReference().child("products").child(productId);
+
+
+
+        databaseReviews = productReference.child("reviews");
         reviewEditText = (EditText) view.findViewById(R.id.reviewEditText);
         reviewBtn = (Button) view.findViewById(R.id.reviewBtn);
         reviewsListView = (ListView) view.findViewById(R.id.reviewsListView);
@@ -129,6 +137,7 @@ public class ProductDetailsFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 reviews.clear();
+
 
                 //iterating through all the nodes
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
@@ -217,7 +226,7 @@ public class ProductDetailsFragment extends Fragment {
             Toast.makeText(getActivity(), "Review added successfully!", Toast.LENGTH_LONG).show();
         } else {
             //if the value is not given displaying a toast
-            Toast.makeText(getActivity(), "Please enter a name", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), "Unable to post blank review!", Toast.LENGTH_LONG).show();
         }
 
     }
