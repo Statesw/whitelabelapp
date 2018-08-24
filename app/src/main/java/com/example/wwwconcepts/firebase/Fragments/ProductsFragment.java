@@ -24,6 +24,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -79,6 +80,8 @@ public class ProductsFragment extends Fragment {
     //new product: empty review list
     HashMap<String, HashMap<String,String>> reviews;
 
+    //switch to hide add options: TODO: for future admin privileges
+    private Switch editSw;
 
 
     public interface OnFragmentInteractionListener {
@@ -174,6 +177,28 @@ public class ProductsFragment extends Fragment {
 
             }
         });
+
+        editSw = (Switch) view.findViewById(R.id.editSw);
+        editSw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (editSw.isChecked()){
+                    titleEditText.setVisibility(View.GONE);
+                    priceEditText.setVisibility(View.GONE);
+                    chooseBtn.setVisibility(View.GONE);
+                    uploadBtn.setVisibility(View.GONE);
+                    uploadImageView.setVisibility(View.GONE);
+                }
+                else{
+                    titleEditText.setVisibility(View.VISIBLE);
+                    priceEditText.setVisibility(View.VISIBLE);
+                    chooseBtn.setVisibility(View.VISIBLE);
+                    uploadBtn.setVisibility(View.VISIBLE);
+                    uploadImageView.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
 
 
         return view;
