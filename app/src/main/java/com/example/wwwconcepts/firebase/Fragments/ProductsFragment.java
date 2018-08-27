@@ -327,8 +327,6 @@ public class ProductsFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
 
-                    //TODO: PASS IN PRODUCTID FOR IDENTIFICATION IN PRODUCTDETAILS FRAGMENT
-
                     ProductDetailsFragment nextFrag = new ProductDetailsFragment();
                     Bundle args = new Bundle();
                     args.putString("title", product.getTitle());

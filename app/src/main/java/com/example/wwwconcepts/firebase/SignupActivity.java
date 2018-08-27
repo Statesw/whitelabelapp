@@ -94,6 +94,14 @@ public class SignupActivity extends AppCompatActivity {
                                 }
                             }
                         });
+//
+//                FirebaseUser user = auth.getCurrentUser();
+//
+//                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+//                        .setDisplayName().build();
+//
+//                user.updateProfile(profileUpdates);
+
 
             }
         });

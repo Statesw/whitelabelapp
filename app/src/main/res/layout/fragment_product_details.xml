@@ -142,6 +142,16 @@
                 android:text="Post"
                 android:visibility="visible" />
 
+            <Button
+                android:id="@+id/deleteBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:background="@android:color/holo_red_dark"
+                android:text="Delete Item"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
+
         </LinearLayout>
     </ScrollView>
 

@@ -1,6 +1,8 @@
 package com.example.wwwconcepts.firebase.Fragments;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -55,7 +57,7 @@ public class ProductDetailsFragment extends Fragment {
     private ImageView prodDetailsImage;
 
     private EditText reviewEditText;
-    private Button reviewBtn;
+    private Button reviewBtn, deleteBtn;
     private ListView reviewsListView;
 
     private Product currentProduct;
@@ -161,6 +163,37 @@ public class ProductDetailsFragment extends Fragment {
         });
 
 
+        //TODO: admin rights to access delete button
+        deleteBtn = (Button) view.findViewById(R.id.deleteBtn);
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //pop up are you sure
+                AlertDialog.Builder adb = new AlertDialog.Builder(getActivity());
+                adb.setTitle("Confirmation");
+                adb.setMessage("Are you sure you want to delete this item? All existing data including reviews will be wiped.");
+                adb.setNegativeButton("Cancel", null);
+                adb.setPositiveButton("Yes", new AlertDialog.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        //remove item
+                        productReference.removeValue();
+                        //screen back to product page
+                        ProductsFragment nextFrag = new ProductsFragment();
+                        getActivity().getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.frame_container, nextFrag, "remove")
+                                .addToBackStack(null)
+                                .commit();
+
+                    }
+                });
+                adb.show();
+            }
+        });
+
+
         return view;
     }
 
@@ -251,5 +284,7 @@ public class ProductDetailsFragment extends Fragment {
         listView.setLayoutParams(params);
         listView.requestLayout();
     }
+
+
 
 }
