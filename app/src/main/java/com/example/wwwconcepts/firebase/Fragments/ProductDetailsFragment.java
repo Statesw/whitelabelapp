@@ -51,6 +51,7 @@ public class ProductDetailsFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private String productId;
 
     private OnFragmentInteractionListener mListener;
     private TextView itemNameTextView, priceTextView;
@@ -64,7 +65,7 @@ public class ProductDetailsFragment extends Fragment {
 
     List<Review> reviews;
 
-    DatabaseReference databaseReviews, productReference;
+    DatabaseReference databaseReviews, productReference, userReference;
     private FirebaseAuth auth;
 
     public ProductDetailsFragment() {
@@ -116,7 +117,7 @@ public class ProductDetailsFragment extends Fragment {
                 .load(bundle.getString("image"))
                 .into(prodDetailsImage);
 
-        String productId = bundle.getString("productId");
+        productId = bundle.getString("productId");
         productReference = FirebaseDatabase.getInstance().getReference().child("products").child(productId);
 
 
@@ -130,11 +131,13 @@ public class ProductDetailsFragment extends Fragment {
         reviewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addReview();
+                addReview(productId);
             }
         });
 
 
+
+        //update reviews live
         databaseReviews.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -235,21 +238,29 @@ public class ProductDetailsFragment extends Fragment {
      * This method is saving a new artist to the
      * Firebase Realtime Database
      * */
-    private void addReview(){
+    private void addReview(String productId){
         String reviewPost = reviewEditText.getText().toString().trim();
         String username = auth.getCurrentUser().getEmail();
+        String userId = auth.getCurrentUser().getUid();
         //checking if the value is provided
         if (!TextUtils.isEmpty(reviewPost)) {
 
             //getting a unique id using push().getKey() method
-            //it will create a unique id and we will use it as the Primary Key for our Artist
+            //it will create a unique id and we will use it as the Primary Key for our Author
             String id = databaseReviews.push().getKey();
 
-            //creating an Artist Object
-            Review review = new Review(id, username, reviewPost);
+            //creating an Review Object
+            Review review = new Review(id, username, userId, reviewPost, productId);
 
-            //Saving the Artist
+            //Saving the review
             databaseReviews.child(id).setValue(review);
+
+
+            //Saving the review
+            userReference = FirebaseDatabase.getInstance().getReference();
+
+            //Adding to user database
+            userReference.child("users").child(userId).child("reviews").child(id).setValue(review);
 
             //setting edittext to blank again
             reviewEditText.setText("");

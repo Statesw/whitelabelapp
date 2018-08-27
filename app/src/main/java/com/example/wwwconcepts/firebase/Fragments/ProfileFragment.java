@@ -1,18 +1,42 @@
 package com.example.wwwconcepts.firebase.Fragments;
 
+import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.example.wwwconcepts.firebase.Constants;
 import com.example.wwwconcepts.firebase.LoginActivity;
 import com.example.wwwconcepts.firebase.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.IOException;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,7 +49,21 @@ import com.google.firebase.auth.FirebaseAuth;
 public class ProfileFragment extends Fragment {
 
     private FirebaseAuth auth;
+    private ImageView profileImageView;
+    private TextView usernameTextView;
+    private EditText urlEditText;
+    private FloatingActionButton addPhotoFloatingActionBtn;
 
+
+    //uri to store file
+    private Uri filePath;
+
+    //firebase objects
+    private StorageReference storageReference;
+
+
+    //constant to track image chooser intent
+    private static final int PICK_IMAGE_REQUEST = 234;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -80,23 +118,36 @@ public class ProfileFragment extends Fragment {
         signOutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signOutBtn.setText("CLICKED");
                 auth.signOut();
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);
 
             }
         });
+
+        usernameTextView = (TextView) view.findViewById(R.id.usernameTextView);
+        usernameTextView.setText(auth.getCurrentUser().getDisplayName());
+
+        profileImageView = (ImageView) view.findViewById(R.id.profileImageView);
+        Uri dpUri = auth.getCurrentUser().getPhotoUrl();
+        if (dpUri!=null) {
+            Glide.with(getActivity().getApplicationContext())
+                    .load(auth.getCurrentUser().getPhotoUrl())
+                    .into(profileImageView);
+        }
+
+        addPhotoFloatingActionBtn = (FloatingActionButton) view.findViewById(R.id.addPhotoFloatingActionBtn);
+        addPhotoFloatingActionBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showFileChooser();
+            }
+        });
+
         return view;
 
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -128,5 +179,81 @@ public class ProfileFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+
+
+    private void showFileChooser() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == getActivity().RESULT_OK && data != null && data.getData() != null) {
+            filePath = data.getData();
+            try {
+                uploadDisplayPic();
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), filePath);
+                profileImageView.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    private void uploadDisplayPic(){
+        if (filePath != null) {
+            //displaying progress dialog while image is uploading
+            final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setTitle("Uploading");
+            progressDialog.show();
+
+            //getting the storage reference
+            storageReference = FirebaseStorage.getInstance().getReference();
+            StorageReference sRef = storageReference.child(Constants.STORAGE_PATH_UPLOADS + System.currentTimeMillis() + "." + getFileExtension(filePath));
+
+
+            sRef.putFile(filePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            progressDialog.dismiss();
+                            //displaying success toast
+                            Toast.makeText(getActivity().getApplicationContext(), "Display Photo Updated!", Toast.LENGTH_LONG).show();
+
+                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                    .setPhotoUri(Uri.parse(taskSnapshot.getDownloadUrl().toString()))
+                                    .build();
+
+                            user.updateProfile(profileUpdates)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Log.d("profilepic", "User profile picture updated.");
+                                            }
+                                        }
+                                    });
+
+                        }
+                    });
+        }
+
+
+
+
+    }
+
+
+    public String getFileExtension(Uri uri) {
+        ContentResolver cR = getActivity().getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(cR.getType(uri));
     }
 }
