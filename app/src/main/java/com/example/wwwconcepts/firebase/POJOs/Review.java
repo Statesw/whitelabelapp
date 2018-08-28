@@ -12,6 +12,7 @@ public class Review {
     private String userId;
     private String reviewPost;
     private String productId;
+    private Boolean owner;
 
     public Review(){
         //this constructor is required
@@ -61,5 +62,13 @@ public class Review {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public Boolean getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Boolean owner) {
+        this.owner = owner;
     }
 }

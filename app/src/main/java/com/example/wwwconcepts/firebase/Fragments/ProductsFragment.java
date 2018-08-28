@@ -31,9 +31,11 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.wwwconcepts.firebase.Constants;
 import com.example.wwwconcepts.firebase.POJOs.Product;
+import com.example.wwwconcepts.firebase.POJOs.User;
 import com.example.wwwconcepts.firebase.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -57,11 +59,12 @@ public class ProductsFragment extends Fragment {
     private StoreAdapter mAdapter;
     private CardView card_view;
     private EditText titleEditText, priceEditText;
+    private Boolean isAdmin;
 
 
-    List<Product> products;
+    private List<Product> products;
 
-    DatabaseReference databaseReference;
+    private DatabaseReference databaseReference, userReference;
 
     //constant to track image chooser intent
     private static final int PICK_IMAGE_REQUEST = 234;
@@ -158,6 +161,7 @@ public class ProductsFragment extends Fragment {
         priceEditText = view.findViewById(R.id.priceEditText);
 
 
+        editSw = (Switch) view.findViewById(R.id.editSw);
         uploadBtn = (Button) view.findViewById(R.id.uploadBtn);
         chooseBtn = (Button) view.findViewById(R.id.chooseBtn);
         uploadImageView = (ImageView) view.findViewById(R.id.uploadImageView);
@@ -178,11 +182,29 @@ public class ProductsFragment extends Fragment {
             }
         });
 
-        editSw = (Switch) view.findViewById(R.id.editSw);
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        userReference = FirebaseDatabase.getInstance().getReference().child("users").child(userId);
+        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User currentUser = dataSnapshot.getValue(User.class);
+                if (currentUser.getAdmin()==true){
+                    editSw.setVisibility(View.VISIBLE);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        editSw.setChecked(false); // off by default
         editSw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (editSw.isChecked()){
+                if (!editSw.isChecked()){
                     titleEditText.setVisibility(View.GONE);
                     priceEditText.setVisibility(View.GONE);
                     chooseBtn.setVisibility(View.GONE);
@@ -391,7 +413,7 @@ public class ProductsFragment extends Fragment {
             progressDialog.show();
 
             //getting the storage reference
-            StorageReference sRef = storageReference.child(Constants.STORAGE_PATH_UPLOADS + System.currentTimeMillis() + "." + getFileExtension(filePath));
+            StorageReference sRef = storageReference.child(Constants.PRODUCT_STORAGE_PATH_UPLOADS + System.currentTimeMillis() + "." + getFileExtension(filePath));
 
             //adding the file to reference
             sRef.putFile(filePath)

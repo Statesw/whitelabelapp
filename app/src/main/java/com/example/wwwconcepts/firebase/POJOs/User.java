@@ -9,7 +9,7 @@ public class User {
 
     public String userId;
     public HashMap<String, HashMap<String, String>> reviews;
-    private boolean isAdmin;
+    private boolean admin;
 
     // Default constructor required for calls to
     // DataSnapshot.getValue(User.class)
@@ -19,7 +19,7 @@ public class User {
     public User(String userId, HashMap<String, HashMap<String, String>> reviews) {
         this.userId = userId;
         this.reviews = reviews;
-        this.isAdmin = false;
+        this.admin = false;
     }
 
     public String getUserId() {
@@ -38,7 +38,7 @@ public class User {
         this.reviews = reviews;
     }
 
-    public boolean isAdmin() {
-        return isAdmin;
+    public boolean getAdmin() {
+        return admin;
     }
 }

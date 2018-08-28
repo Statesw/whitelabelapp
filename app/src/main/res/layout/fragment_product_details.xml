@@ -150,7 +150,8 @@
                 android:background="@android:color/holo_red_dark"
                 android:text="Delete Item"
                 android:textColor="@color/white"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:visibility="gone" />
 
         </LinearLayout>
     </ScrollView>

@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -20,9 +22,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.wwwconcepts.firebase.POJOs.Product;
 import com.example.wwwconcepts.firebase.POJOs.Review;
 import com.example.wwwconcepts.firebase.POJOs.ReviewList;
+import com.example.wwwconcepts.firebase.POJOs.User;
 import com.example.wwwconcepts.firebase.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -61,11 +63,10 @@ public class ProductDetailsFragment extends Fragment {
     private Button reviewBtn, deleteBtn;
     private ListView reviewsListView;
 
-    private Product currentProduct;
 
-    List<Review> reviews;
+    private List<Review> reviews;
 
-    DatabaseReference databaseReviews, productReference, userReference;
+    private DatabaseReference databaseReviews, productReference, userReference;
     private FirebaseAuth auth;
 
     public ProductDetailsFragment() {
@@ -105,8 +106,25 @@ public class ProductDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         auth = FirebaseAuth.getInstance();
+        final String userId = auth.getCurrentUser().getUid();
+        userReference = FirebaseDatabase.getInstance().getReference().child("users").child(userId);
+        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User currentUser = dataSnapshot.getValue(User.class);
+                if(currentUser.getAdmin()==true){
+                    deleteBtn.setVisibility(View.VISIBLE);//Remove delete button if user is not admin
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_product_details, container, false);
+        final View view = inflater.inflate(R.layout.fragment_product_details, container, false);
         itemNameTextView = (TextView) view.findViewById(R.id.itemNameTextView);
         priceTextView = (TextView) view.findViewById(R.id.priceTextView);
         prodDetailsImage = (ImageView) view.findViewById(R.id.prodDetailsImage);
@@ -137,6 +155,7 @@ public class ProductDetailsFragment extends Fragment {
 
 
 
+
         //update reviews live
         databaseReviews.addValueEventListener(new ValueEventListener() {
             @Override
@@ -148,15 +167,45 @@ public class ProductDetailsFragment extends Fragment {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     //getting
                     Review review = postSnapshot.getValue(Review.class);
+
+
+                    if(userId.equals(review.getUserId())) //for each review: check if user owns review
+                        review.setOwner(true);
+                    else
+                        review.setOwner(false);
                     //adding to the list
                     reviews.add(review);
                 }
 
                 //creating adapter
-                ReviewList reviewAdapter = new ReviewList(getActivity(), reviews);
+                final ReviewList reviewAdapter = new ReviewList(getActivity(), reviews);
+
+
                 //attaching adapter to the listview
                 reviewsListView.setAdapter(reviewAdapter);
-                setListViewHeightBasedOnChildren(reviewsListView);
+//              Measure list height after drawn
+                final ViewTreeObserver vto = view.getViewTreeObserver();
+                if (vto.isAlive()) {
+                    vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            int totalHeight = 0;
+                            for (int i = 0; i < reviewAdapter.getCount(); i++) {
+                                View listItem = reviewAdapter.getView(i, null, reviewsListView);
+                                listItem.measure(0, 0);
+                                totalHeight += listItem.getMeasuredHeight();
+                            }
+                            setListViewHeightBasedOnChildren(reviewsListView, totalHeight);
+
+                            if (Build.VERSION.SDK_INT < 16) {
+                                vto.removeGlobalOnLayoutListener(this);
+                            } else {
+                                vto.removeOnGlobalLayoutListener(this);
+                            }
+                        }
+                    });
+                }
+
             }
 
             @Override
@@ -166,7 +215,6 @@ public class ProductDetailsFragment extends Fragment {
         });
 
 
-        //TODO: admin rights to access delete button
         deleteBtn = (Button) view.findViewById(R.id.deleteBtn);
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -273,22 +321,25 @@ public class ProductDetailsFragment extends Fragment {
             Toast.makeText(getActivity(), "Unable to post blank review!", Toast.LENGTH_LONG).show();
         }
 
+
     }
 
 // to enable listview on scrollview
-    public static void setListViewHeightBasedOnChildren(ListView listView) {
+    public static void setListViewHeightBasedOnChildren(ListView listView, int measuredHeight) {
+        // have to pass in measuredheight as unable to measure before view generated
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null) {
             // pre-condition
             return;
         }
 
-        int totalHeight = 0;
-        for (int i = 0; i < listAdapter.getCount(); i++) {
-            View listItem = listAdapter.getView(i, null, listView);
-            listItem.measure(0, 0);
-            totalHeight += listItem.getMeasuredHeight();
-        }
+        int totalHeight = measuredHeight;
+        //calculation shifted outside to measure height after view is drawn
+//        for (int i = 0; i < listAdapter.getCount(); i++) {
+//            View listItem = listAdapter.getView(i, null, listView);
+//            listItem.measure(0, 0);
+//            totalHeight += measuredHeight;
+//        }
 
         ViewGroup.LayoutParams params = listView.getLayoutParams();
         params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));

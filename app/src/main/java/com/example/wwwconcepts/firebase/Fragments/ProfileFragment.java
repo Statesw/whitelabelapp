@@ -213,9 +213,11 @@ public class ProfileFragment extends Fragment {
             progressDialog.setTitle("Uploading");
             progressDialog.show();
 
+            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
             //getting the storage reference
             storageReference = FirebaseStorage.getInstance().getReference();
-            StorageReference sRef = storageReference.child(Constants.STORAGE_PATH_UPLOADS + System.currentTimeMillis() + "." + getFileExtension(filePath));
+            StorageReference sRef = storageReference.child(Constants.USER_STORAGE_PATH_UPLOADS + user.getUid() + "." + getFileExtension(filePath));
 
 
             sRef.putFile(filePath)
@@ -226,7 +228,7 @@ public class ProfileFragment extends Fragment {
                             //displaying success toast
                             Toast.makeText(getActivity().getApplicationContext(), "Display Photo Updated!", Toast.LENGTH_LONG).show();
 
-                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
                             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                     .setPhotoUri(Uri.parse(taskSnapshot.getDownloadUrl().toString()))
                                     .build();
