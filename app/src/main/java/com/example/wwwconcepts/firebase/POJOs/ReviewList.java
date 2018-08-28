@@ -11,8 +11,12 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.wwwconcepts.firebase.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -20,7 +24,7 @@ import java.util.List;
 public class ReviewList extends ArrayAdapter<Review> {
     private Activity context;
     List<Review> reviews;
-    private DatabaseReference reviewReference, userRecordRefernce;
+    private DatabaseReference reviewReference, userRecordReference, adminCheckReference;
 
     public ReviewList(Activity context, List<Review> reviews) {
         super(context, R.layout.reviews_layout_list, reviews);
@@ -39,13 +43,15 @@ public class ReviewList extends ArrayAdapter<Review> {
         TextView textViewGenre = (TextView) listViewItem.findViewById(R.id.postTextView);
 
         Review review = reviews.get(position);
-        textViewName.setText(review.getReviewAuthorName());
+        reviewReference = FirebaseDatabase.getInstance().getReference().child("products").child(review.getProductId()).child("reviews").child(review.getReviewId());
+        userRecordReference = FirebaseDatabase.getInstance().getReference().child("users").child(review.getUserId()).child("reviews").child(review.getReviewId());
+
+        textViewName.setText("by " + review.getReviewAuthorName() +" (" + review.getReviewAuthorEmail() + ")");
         textViewGenre.setText(review.getReviewPost());
 
-        ImageButton reviewDeleteBtn = (ImageButton) listViewItem.findViewById(R.id.reviewDeleteBtn);
+        final ImageButton reviewDeleteBtn = (ImageButton) listViewItem.findViewById(R.id.reviewDeleteBtn);
 
-        reviewReference = FirebaseDatabase.getInstance().getReference().child("products").child(review.getProductId()).child("reviews").child(review.getReviewId());
-        userRecordRefernce = FirebaseDatabase.getInstance().getReference().child("users").child(review.getUserId()).child("reviews").child(review.getReviewId());
+
         reviewDeleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -60,7 +66,7 @@ public class ReviewList extends ArrayAdapter<Review> {
 
                         //remove item
                         reviewReference.removeValue();
-                        userRecordRefernce.removeValue();
+                        userRecordReference.removeValue();
 
                     }
                 });
@@ -73,6 +79,27 @@ public class ReviewList extends ArrayAdapter<Review> {
             reviewDeleteBtn.setVisibility(View.VISIBLE);
         else
             reviewDeleteBtn.setVisibility(View.GONE);
+
+        final String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        adminCheckReference = FirebaseDatabase.getInstance().getReference().child("users").child(userId);
+        adminCheckReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User currentUser = dataSnapshot.getValue(User.class);
+                if(currentUser.getAdmin()==true){
+                    reviewDeleteBtn.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+
 
 
 

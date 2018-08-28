@@ -13,17 +13,19 @@ public class Review {
     private String reviewPost;
     private String productId;
     private Boolean owner;
+    private String reviewAuthorEmail;
 
     public Review(){
         //this constructor is required
     }
 
-    public Review(String reviewId, String reviewAuthorName, String userId, String reviewPost, String productId) {
+    public Review(String reviewId, String reviewAuthorName, String reviewAuthorEmail, String userId, String reviewPost, String productId) {
         this.reviewId = reviewId;
         this.reviewAuthorName = reviewAuthorName;
         this.userId = userId;
         this.reviewPost = reviewPost;
         this.productId = productId;
+        this.reviewAuthorEmail = reviewAuthorEmail;
     }
 
     public String getReviewId() {
@@ -70,5 +72,13 @@ public class Review {
 
     public void setOwner(Boolean owner) {
         this.owner = owner;
+    }
+
+    public String getReviewAuthorEmail() {
+        return reviewAuthorEmail;
+    }
+
+    public void setReviewAuthorEmail(String reviewAuthorEmail) {
+        this.reviewAuthorEmail = reviewAuthorEmail;
     }
 }

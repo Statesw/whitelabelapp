@@ -288,7 +288,8 @@ public class ProductDetailsFragment extends Fragment {
      * */
     private void addReview(String productId){
         String reviewPost = reviewEditText.getText().toString().trim();
-        String username = auth.getCurrentUser().getEmail();
+        String email = auth.getCurrentUser().getEmail();
+        String username = auth.getCurrentUser().getDisplayName();
         String userId = auth.getCurrentUser().getUid();
         //checking if the value is provided
         if (!TextUtils.isEmpty(reviewPost)) {
@@ -298,7 +299,7 @@ public class ProductDetailsFragment extends Fragment {
             String id = databaseReviews.push().getKey();
 
             //creating an Review Object
-            Review review = new Review(id, username, userId, reviewPost, productId);
+            Review review = new Review(id, username, email, userId, reviewPost, productId);
 
             //Saving the review
             databaseReviews.child(id).setValue(review);
