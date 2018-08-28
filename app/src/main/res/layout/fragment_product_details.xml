@@ -27,7 +27,7 @@
 
                 <ImageView
                     android:id="@+id/prodDetailsImage"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="350dp"
                     android:layout_marginEnd="8dp"
                     android:layout_marginLeft="8dp"
@@ -143,10 +143,18 @@
                 android:visibility="visible" />
 
             <Button
-                android:id="@+id/deleteBtn"
+                android:id="@+id/editBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="50dp"
+                android:text="Edit Item"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/deleteBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:background="@android:color/holo_red_dark"
                 android:text="Delete Item"
                 android:textColor="@color/white"

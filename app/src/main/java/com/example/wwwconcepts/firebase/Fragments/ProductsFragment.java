@@ -355,6 +355,7 @@ public class ProductsFragment extends Fragment {
                     args.putString("price", product.getPrice());
                     args.putString("image", product.getImage());
                     args.putString("productId", product.getProductId());
+                    args.putBoolean("refetch", false);
                     nextFrag.setArguments(args);
 
                     getActivity().getSupportFragmentManager().beginTransaction()

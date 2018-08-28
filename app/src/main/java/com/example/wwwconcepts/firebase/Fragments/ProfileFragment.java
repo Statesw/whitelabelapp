@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +17,7 @@ import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,7 +52,7 @@ public class ProfileFragment extends Fragment {
     private ImageView profileImageView;
     private TextView usernameTextView;
     private EditText urlEditText;
-    private FloatingActionButton addPhotoFloatingActionBtn;
+    private ImageButton addPhotoFloatingActionBtn;
 
 
     //uri to store file
@@ -136,7 +136,7 @@ public class ProfileFragment extends Fragment {
                     .into(profileImageView);
         }
 
-        addPhotoFloatingActionBtn = (FloatingActionButton) view.findViewById(R.id.addPhotoFloatingActionBtn);
+        addPhotoFloatingActionBtn = (ImageButton) view.findViewById(R.id.addPhotoFloatingActionBtn);
         addPhotoFloatingActionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

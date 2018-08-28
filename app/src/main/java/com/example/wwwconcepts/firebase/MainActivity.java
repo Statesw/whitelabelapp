@@ -11,13 +11,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 
+import com.example.wwwconcepts.firebase.Fragments.EditProductFragment;
 import com.example.wwwconcepts.firebase.Fragments.ProductDetailsFragment;
 import com.example.wwwconcepts.firebase.Fragments.ProductsFragment;
 import com.example.wwwconcepts.firebase.Fragments.ProfileFragment;
 import com.example.wwwconcepts.firebase.Fragments.PromotionsFragment;
 
 
-public class MainActivity extends AppCompatActivity implements ProductDetailsFragment.OnFragmentInteractionListener, ProductsFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListener, PromotionsFragment.OnFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity implements ProductDetailsFragment.OnFragmentInteractionListener,
+        ProductsFragment.OnFragmentInteractionListener,
+        ProfileFragment.OnFragmentInteractionListener,
+        PromotionsFragment.OnFragmentInteractionListener,
+        EditProductFragment.OnFragmentInteractionListener{
 
     private ActionBar toolbar;
     private RecyclerView productsRecyclerView;

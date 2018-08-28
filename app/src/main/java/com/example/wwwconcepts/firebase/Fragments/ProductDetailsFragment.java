@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.wwwconcepts.firebase.POJOs.Product;
 import com.example.wwwconcepts.firebase.POJOs.Review;
 import com.example.wwwconcepts.firebase.POJOs.ReviewList;
 import com.example.wwwconcepts.firebase.POJOs.User;
@@ -60,7 +61,7 @@ public class ProductDetailsFragment extends Fragment {
     private ImageView prodDetailsImage;
 
     private EditText reviewEditText;
-    private Button reviewBtn, deleteBtn;
+    private Button reviewBtn, deleteBtn, editBtn;
     private ListView reviewsListView;
 
 
@@ -68,6 +69,8 @@ public class ProductDetailsFragment extends Fragment {
 
     private DatabaseReference databaseReviews, productReference, userReference;
     private FirebaseAuth auth;
+
+    private String imageUrl;
 
     public ProductDetailsFragment() {
         // Required empty public constructor
@@ -113,7 +116,8 @@ public class ProductDetailsFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User currentUser = dataSnapshot.getValue(User.class);
                 if(currentUser.getAdmin()==true){
-                    deleteBtn.setVisibility(View.VISIBLE);//Remove delete button if user is not admin
+                    editBtn.setVisibility(View.VISIBLE);// Add edit button if user is admin
+                    deleteBtn.setVisibility(View.VISIBLE);//Add delete button if user is admin
                 }
             }
 
@@ -129,14 +133,39 @@ public class ProductDetailsFragment extends Fragment {
         priceTextView = (TextView) view.findViewById(R.id.priceTextView);
         prodDetailsImage = (ImageView) view.findViewById(R.id.prodDetailsImage);
         Bundle bundle = getArguments();
-        itemNameTextView.setText(bundle.getString("title"));
-        priceTextView.setText(bundle.getString("price"));
-        Glide.with(getActivity().getApplicationContext())
-                .load(bundle.getString("image"))
-                .into(prodDetailsImage);
-
         productId = bundle.getString("productId");
         productReference = FirebaseDatabase.getInstance().getReference().child("products").child(productId);
+
+        if(bundle.getBoolean("refetch")){//refetch data as update product was cancelled
+            productReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Product product = dataSnapshot.getValue(Product.class);
+                    itemNameTextView.setText(product.getTitle());
+                    priceTextView.setText(product.getPrice());
+                    imageUrl = product.getImage();
+                    Glide.with(getActivity().getApplicationContext())
+                            .load(imageUrl)
+                            .into(prodDetailsImage);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+        else { //small optimization for loading productDetailsFragment from productsFragment
+            itemNameTextView.setText(bundle.getString("title"));
+            priceTextView.setText(bundle.getString("price"));
+            imageUrl = bundle.getString("image");
+            Glide.with(getActivity().getApplicationContext())
+                    .load(imageUrl)
+                    .into(prodDetailsImage);
+        }
+
+
+
 
 
 
@@ -241,6 +270,25 @@ public class ProductDetailsFragment extends Fragment {
                     }
                 });
                 adb.show();
+            }
+        });
+
+        editBtn = (Button) view.findViewById(R.id.editBtn);
+        editBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                EditProductFragment nextFrag = new EditProductFragment();
+                Bundle args = new Bundle();
+                args.putString("title", itemNameTextView.getText().toString());
+                args.putString("price", priceTextView.getText().toString());
+                args.putString("image", imageUrl);
+                args.putString("productId", productId);
+                nextFrag.setArguments(args);
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frame_container, nextFrag, "edit")
+                        .addToBackStack(null)
+                        .commit();
             }
         });
 
