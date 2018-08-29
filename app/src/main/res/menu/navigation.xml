@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/navigation_products"
-        android:icon="@drawable/ic_products_white_24dp"
+        android:icon="@drawable/shopicon"
         android:title="@string/title_products" />
 
     <item

@@ -20,6 +20,9 @@
     <color name="btn_logut_bg">#ff6861</color>
 
     <color name="bgBottomNavigation">#26ae90</color>
+    <color name="titleBgColor">#26ae90</color>
+    <color name="winBgColor">#26ae90</color>
+    <color name="colorBg">#111222</color>
 
 
 

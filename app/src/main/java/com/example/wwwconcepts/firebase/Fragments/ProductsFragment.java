@@ -337,7 +337,7 @@ public class ProductsFragment extends Fragment {
         public void onBindViewHolder(MyViewHolder holder, final int position) {
             final Product product = itemList.get(position);
             holder.name.setText(product.getTitle());
-            holder.price.setText(product.getPrice());
+            holder.price.setText("$"+product.getPrice());
 
             Glide.with(context)
                     .load(product.getImage())

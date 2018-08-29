@@ -19,7 +19,7 @@ public class ProductList extends ArrayAdapter<Product> {
     List<Product> products;
 
     public ProductList(Activity context, List<Product> products) {
-        super(context, R.layout.reviews_layout_list, products);
+        super(context, R.layout.shop_item_row, products);
         this.context = context;
         this.products = products;
     }
@@ -40,7 +40,7 @@ public class ProductList extends ArrayAdapter<Product> {
                 .load(product.getImage())
                 .into(thumbnailImageView);
         titleTextView.setText(product.getTitle());
-        priceTextView.setText(product.getImage());
+        priceTextView.setText("$"+product.getPrice());
 
 
         return listViewItem;

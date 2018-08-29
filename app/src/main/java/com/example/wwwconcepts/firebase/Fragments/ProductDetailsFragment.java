@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.wwwconcepts.firebase.POJOs.Item;
 import com.example.wwwconcepts.firebase.POJOs.Product;
 import com.example.wwwconcepts.firebase.POJOs.Review;
 import com.example.wwwconcepts.firebase.POJOs.ReviewList;
@@ -60,17 +61,17 @@ public class ProductDetailsFragment extends Fragment {
     private TextView itemNameTextView, priceTextView;
     private ImageView prodDetailsImage;
 
-    private EditText reviewEditText;
-    private Button reviewBtn, deleteBtn, editBtn;
+    private EditText reviewEditText, quantityEditText;
+    private Button reviewBtn, deleteBtn, editBtn, plusBtn, minusBtn, addToCartBtn;
     private ListView reviewsListView;
 
 
     private List<Review> reviews;
 
-    private DatabaseReference databaseReviews, productReference, userReference;
+    private DatabaseReference databaseReviews, productReference, userReference, cartReference;
     private FirebaseAuth auth;
 
-    private String imageUrl;
+    private String imageUrl, priceString;
 
     public ProductDetailsFragment() {
         // Required empty public constructor
@@ -142,7 +143,8 @@ public class ProductDetailsFragment extends Fragment {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Product product = dataSnapshot.getValue(Product.class);
                     itemNameTextView.setText(product.getTitle());
-                    priceTextView.setText(product.getPrice());
+                    priceString = product.getPrice();
+                    priceTextView.setText("$"+priceString);
                     imageUrl = product.getImage();
                     Glide.with(getActivity().getApplicationContext())
                             .load(imageUrl)
@@ -157,7 +159,8 @@ public class ProductDetailsFragment extends Fragment {
         }
         else { //small optimization for loading productDetailsFragment from productsFragment
             itemNameTextView.setText(bundle.getString("title"));
-            priceTextView.setText(bundle.getString("price"));
+            priceString=bundle.getString("price");
+            priceTextView.setText("$"+priceString);
             imageUrl = bundle.getString("image");
             Glide.with(getActivity().getApplicationContext())
                     .load(imageUrl)
@@ -165,7 +168,62 @@ public class ProductDetailsFragment extends Fragment {
         }
 
 
+        quantityEditText = (EditText) view.findViewById(R.id.quantityEditText);
+        plusBtn = (Button) view.findViewById(R.id.plusBtn);
+        minusBtn = (Button) view.findViewById(R.id.minusBtn);
+        plusBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int current = Integer.parseInt(quantityEditText.getText().toString());
+                current++;
+                quantityEditText.setText(String.valueOf(current));
+            }
+        });
+        minusBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int current = Integer.parseInt(quantityEditText.getText().toString());
+                if (current != 1){
+                    current--;
+                    quantityEditText.setText(String.valueOf(current));
+                }
+            }
+        });
 
+
+        addToCartBtn = (Button) view.findViewById(R.id.addToCartBtn);
+        addToCartBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //read quantity
+                final int quantity = Integer.parseInt(quantityEditText.getText().toString());
+                cartReference = FirebaseDatabase.getInstance().getReference().child("carts").child(userId).child(productId);
+
+                cartReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Item item = dataSnapshot.getValue(Item.class);
+                        if (item != null){ //item exists!
+                            Item updatedItem = new Item(productId, item.getQuantity()+quantity);
+                            cartReference.setValue(updatedItem);
+                        }
+                        else{ //item dont exist! create!
+                            Item newItem = new Item(productId, quantity);
+                            cartReference.setValue(newItem);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+
+                Toast.makeText(getActivity(), "Item Added to Cart!", Toast.LENGTH_LONG).show();
+
+            }
+        });
 
 
 
@@ -244,6 +302,9 @@ public class ProductDetailsFragment extends Fragment {
         });
 
 
+
+
+
         deleteBtn = (Button) view.findViewById(R.id.deleteBtn);
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -281,7 +342,7 @@ public class ProductDetailsFragment extends Fragment {
                 EditProductFragment nextFrag = new EditProductFragment();
                 Bundle args = new Bundle();
                 args.putString("title", itemNameTextView.getText().toString());
-                args.putString("price", priceTextView.getText().toString());
+                args.putString("price", priceString);
                 args.putString("image", imageUrl);
                 args.putString("productId", productId);
                 nextFrag.setArguments(args);

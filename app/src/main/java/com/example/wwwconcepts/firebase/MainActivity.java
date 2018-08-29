@@ -6,11 +6,13 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.wwwconcepts.firebase.Fragments.CartFragment;
 import com.example.wwwconcepts.firebase.Fragments.EditProductFragment;
 import com.example.wwwconcepts.firebase.Fragments.ProductDetailsFragment;
 import com.example.wwwconcepts.firebase.Fragments.ProductsFragment;
@@ -22,9 +24,12 @@ public class MainActivity extends AppCompatActivity implements ProductDetailsFra
         ProductsFragment.OnFragmentInteractionListener,
         ProfileFragment.OnFragmentInteractionListener,
         PromotionsFragment.OnFragmentInteractionListener,
-        EditProductFragment.OnFragmentInteractionListener{
+        EditProductFragment.OnFragmentInteractionListener,
+        CartFragment.OnFragmentInteractionListener{
 
-    private ActionBar toolbar;
+//    private ActionBar toolbar;
+private Toolbar toolbar;
+
     private RecyclerView productsRecyclerView;
 
     @Override
@@ -32,7 +37,11 @@ public class MainActivity extends AppCompatActivity implements ProductDetailsFra
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        toolbar = getSupportActionBar();
+        // Attaching the layout to the toolbar object
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        setSupportActionBar(toolbar);
+//        toolbar = getSupportActionBar();
 
 
 
@@ -43,8 +52,32 @@ public class MainActivity extends AppCompatActivity implements ProductDetailsFra
 
 
 
-        toolbar.setTitle("Shop");
+        toolbar.setTitle("White Label");
         loadFragment(new ProductsFragment());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_cart) {
+           //cart on click
+            Fragment fragment = new CartFragment();
+            loadFragment(fragment);
+            toolbar.setTitle("My Cart");
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private BottomNavigationView.OnNavigationItemReselectedListener mOnNavigationItemReselectedListener = new BottomNavigationView.OnNavigationItemReselectedListener() {
@@ -59,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements ProductDetailsFra
                     catch(Exception e){ //try to scroll to top, reload fragment if in productdetailsfragment
                         fragment = new ProductsFragment();
                         loadFragment(fragment);
-                        toolbar.setTitle("Shop");
+                        toolbar.setTitle("White Label");
                     }
                 case R.id.navigation_profile:
                 case R.id.navigation_promotions:
@@ -79,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements ProductDetailsFra
                 case R.id.navigation_products:
                     fragment = new ProductsFragment();
                     loadFragment(fragment);
-                    toolbar.setTitle("Shop");
+                    toolbar.setTitle("White Label");
 
                     return true;
                 case R.id.navigation_promotions:
