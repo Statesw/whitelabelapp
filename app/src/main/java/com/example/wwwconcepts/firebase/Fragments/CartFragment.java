@@ -9,9 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.wwwconcepts.firebase.POJOs.Item;
 import com.example.wwwconcepts.firebase.POJOs.ItemList;
+import com.example.wwwconcepts.firebase.POJOs.Product;
 import com.example.wwwconcepts.firebase.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -49,6 +51,8 @@ public class CartFragment extends Fragment {
     private FirebaseAuth auth;
     private List<Item> items;
     private float subtotalCost;
+    private TextView subtotalTextView;
+    int tempQuantity;
 
     public CartFragment() {
         // Required empty public constructor
@@ -84,7 +88,7 @@ public class CartFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_cart, container, false);
+        final View view = inflater.inflate(R.layout.fragment_cart, container, false);
 
         auth = FirebaseAuth.getInstance();
         cartItemListView = (ListView) view.findViewById(R.id.cartItemListView);
@@ -99,7 +103,7 @@ public class CartFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 items.clear();
                 subtotalCost = (float) 0.0;
-                int tempQuantity = 0;
+//                int tempQuantity;
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
 
                     //getting item reference in carts database
@@ -110,8 +114,11 @@ public class CartFragment extends Fragment {
                     productReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            float tempCost = Float.valueOf(dataSnapshot.child(item.getProductId()).child("price").getValue().toString());
-                            subtotalCost+= tempCost * finalTempQuantity;
+                            Product product = dataSnapshot.child(item.getProductId()).getValue(Product.class);
+                            float tempCost = Float.valueOf(product.getPrice());
+                            subtotalCost+= (tempCost * (finalTempQuantity));
+                            subtotalTextView = (TextView) view.findViewById(R.id.subtotalTextView);
+                            subtotalTextView.setText(String.format("%.2f", subtotalCost));
                         }
 
                         @Override
@@ -135,6 +142,9 @@ public class CartFragment extends Fragment {
         });
 
 
+//        subtotalTextView = (TextView) view.findViewById(R.id.subtotalTextView);
+//        subtotalTextView.setText(String.format("%.2f", subtotalCost));
+//        subtotalTextView.setText(String.valueOf(tempQuantity));
 
 
 
