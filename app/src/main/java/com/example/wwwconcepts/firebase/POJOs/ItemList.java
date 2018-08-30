@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ public class ItemList extends ArrayAdapter<Item> {
     private float itemCost;
     public Boolean editMode=false;
     public ImageButton deleteCartBtn;
+    private Button qAddBtn, qMinusBtn;
 
     public ItemList(Activity context, List<Item> items) {
         super(context, R.layout.cart_list_layout, items);
@@ -44,29 +46,34 @@ public class ItemList extends ArrayAdapter<Item> {
         View listViewItem = inflater.inflate(R.layout.cart_list_layout, null, true);
 
         final TextView cartItemTextView = (TextView) listViewItem.findViewById(R.id.cartItemTextView);
-        final TextView quantityTextView = (TextView) listViewItem.findViewById(R.id.quantityTextView);
+        final TextView numberTextView = (TextView) listViewItem.findViewById(R.id.numberTextView);
         final TextView costTextView = (TextView) listViewItem.findViewById(R.id.costTextView);
         final ImageView cartItemImageView = (ImageView) listViewItem.findViewById(R.id.cartItemImageView);
 
         deleteCartBtn = (ImageButton) listViewItem.findViewById(R.id.deleteCartBtn);
+        qAddBtn = (Button) listViewItem.findViewById(R.id.qAddBtn);
+        qMinusBtn = (Button) listViewItem.findViewById(R.id.qMinusBtn);
         deleteCartBtn.setVisibility( (editMode ? View.VISIBLE : View.GONE));
+        qAddBtn.setVisibility(editMode ? View.VISIBLE : View.GONE);
+        qMinusBtn.setVisibility(editMode ? View.VISIBLE : View.GONE);
 
-
-        final Item item = items.get(position);
+        Item item = items.get(position);
+        final int finalQuantity = item.getQuantity();
+        final Item finalItem = items.get(position);
 
         productReference = FirebaseDatabase.getInstance().getReference("products");
         productReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                product = dataSnapshot.child(item.getProductId()).getValue(Product.class);
+                product = dataSnapshot.child(finalItem.getProductId()).getValue(Product.class);
                 Glide.with(context)
                         .load(product.getImage())
                         .into(cartItemImageView);
                 cartItemTextView.setText(product.getTitle());
-                quantityTextView.setText("Quantity: "+ item.getQuantity());
+                numberTextView.setText(String.valueOf(finalItem.getQuantity()));
 
 
-                itemCost = Float.valueOf(product.getPrice()) * Float.valueOf(item.getQuantity());
+                itemCost = Float.valueOf(product.getPrice()) * Float.valueOf(finalItem.getQuantity());
                 costTextView.setText(String.format("%.2f", itemCost));
 
             }
@@ -77,24 +84,57 @@ public class ItemList extends ArrayAdapter<Item> {
             }
         });
 
+        auth = FirebaseAuth.getInstance();
+        final String uid = auth.getCurrentUser().getUid();
 
+        deleteCartBtn.setTag(position);
         deleteCartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                auth = FirebaseAuth.getInstance();
-                String uid = auth.getCurrentUser().getUid();
+                int position = (int)v.getTag();
+                Item item = items.get(position);
                 cartReference = FirebaseDatabase.getInstance().getReference("carts").child(uid).child(item.getProductId());
                 cartReference.removeValue();
             }
         });
+        qAddBtn.setTag(position);
+        qAddBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = (int)v.getTag();
+                Item item = items.get(position);
+                cartReference = FirebaseDatabase.getInstance().getReference("carts").child(uid).child(item.getProductId());
+                int quantity = finalQuantity;
+                quantity++;
+                cartReference.child("quantity").setValue(quantity);
 
+//
+//                int quantity = Integer.valueOf(numberTextView.getText().toString());
+//                quantity++;
+//                numberTextView.setText(String.valueOf(quantity));
+            }
+        });
+
+        qMinusBtn.setTag(position);
+        qMinusBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = (int)v.getTag();
+                Item item = items.get(position);
+                cartReference = FirebaseDatabase.getInstance().getReference("carts").child(uid).child(item.getProductId());
+                int quantity = finalQuantity;
+                if(quantity!=1)
+                    quantity--;
+                cartReference.child("quantity").setValue(quantity);
+            }
+        });
 
         return listViewItem;
     }
 
 
-    public void setEditMode(){
-        this.editMode = !this.editMode;
+    public void setEditMode(Boolean state){
+        this.editMode = state;
         this.notifyDataSetChanged();
     }
 

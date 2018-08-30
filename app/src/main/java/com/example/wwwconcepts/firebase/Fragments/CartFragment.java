@@ -52,6 +52,7 @@ public class CartFragment extends Fragment {
     private List<Item> items;
     private float subtotalCost;
     private TextView subtotalTextView, editCartTextView;
+    private Boolean editModeStateTracker = false;
     int tempQuantity;
 
     public CartFragment() {
@@ -144,10 +145,24 @@ public class CartFragment extends Fragment {
                             final ItemList itemAdapter = new ItemList(getActivity(), items);
 
                             editCartTextView = (TextView) view.findViewById(R.id.editCartTextView);
+                            if(editModeStateTracker)
+                                itemAdapter.setEditMode(true);
+                            else
+                                itemAdapter.setEditMode(false);
+
                             editCartTextView.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    itemAdapter.setEditMode();
+                                    if(editModeStateTracker){
+                                        itemAdapter.setEditMode(false);
+                                        editModeStateTracker=!editModeStateTracker;
+                                        editCartTextView.setText("Edit");
+                                    }
+                                    else {
+                                        itemAdapter.setEditMode(true);
+                                        editModeStateTracker=!editModeStateTracker;
+                                        editCartTextView.setText("Done");
+                                    }
                                 }
                             });
 
@@ -156,6 +171,12 @@ public class CartFragment extends Fragment {
                             if (count ==0) {// if no items exist in cart
                                 subtotalTextView = (TextView) view.findViewById(R.id.subtotalTextView);
                                 subtotalTextView.setText("0.0");
+                                Button checkoutBtn = (Button) view.findViewById(R.id.checkoutBtn);
+                                checkoutBtn.setClickable(false);
+                            }
+                            else{
+                                Button checkoutBtn = (Button) view.findViewById(R.id.checkoutBtn);
+                                checkoutBtn.setClickable(true);
                             }
                     }
 

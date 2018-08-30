@@ -43,7 +43,7 @@ public class ReviewList extends ArrayAdapter<Review> {
         TextView textViewGenre = (TextView) listViewItem.findViewById(R.id.postTextView);
 
         Review review = reviews.get(position);
-        reviewReference = FirebaseDatabase.getInstance().getReference().child("products").child(review.getProductId()).child("reviews").child(review.getReviewId());
+
         userRecordReference = FirebaseDatabase.getInstance().getReference().child("users").child(review.getUserId()).child("reviews").child(review.getReviewId());
 
         textViewName.setText("by " + review.getReviewAuthorName() +" (" + review.getReviewAuthorEmail() + ")");
@@ -51,10 +51,13 @@ public class ReviewList extends ArrayAdapter<Review> {
 
         final ImageButton reviewDeleteBtn = (ImageButton) listViewItem.findViewById(R.id.reviewDeleteBtn);
 
-
+        reviewDeleteBtn.setTag(position);
         reviewDeleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int position = (int)v.getTag();
+                Review review = reviews.get(position);
+                reviewReference = FirebaseDatabase.getInstance().getReference().child("products").child(review.getProductId()).child("reviews").child(review.getReviewId());
                 //pop up are you sure
                 AlertDialog.Builder adb = new AlertDialog.Builder(context);
                 adb.setTitle("Confirmation");
@@ -65,6 +68,7 @@ public class ReviewList extends ArrayAdapter<Review> {
                     public void onClick(DialogInterface dialog, int which) {
 
                         //remove item
+
                         reviewReference.removeValue();
                         userRecordReference.removeValue();
 
