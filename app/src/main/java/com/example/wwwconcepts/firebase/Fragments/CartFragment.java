@@ -51,7 +51,7 @@ public class CartFragment extends Fragment {
     private FirebaseAuth auth;
     private List<Item> items;
     private float subtotalCost;
-    private TextView subtotalTextView;
+    private TextView subtotalTextView, editCartTextView;
     int tempQuantity;
 
     public CartFragment() {
@@ -98,53 +98,84 @@ public class CartFragment extends Fragment {
         String userId = auth.getCurrentUser().getUid();
         productReference = FirebaseDatabase.getInstance().getReference("products");
         cartsReference = FirebaseDatabase.getInstance().getReference("carts").child(userId);
-        cartsReference.addValueEventListener(new ValueEventListener() {
+        productReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                items.clear();
-                subtotalCost = (float) 0.0;
+                cartsReference.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        items.clear();
+                        int count =0;
+                        subtotalCost = (float) 0.0;
 //                int tempQuantity;
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
 
-                    //getting item reference in carts database
-                    final Item item = postSnapshot.getValue(Item.class);
-                    tempQuantity=item.getQuantity();
-                    //getting the actual price in products database
-                    final int finalTempQuantity = tempQuantity;
-                    productReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            Product product = dataSnapshot.child(item.getProductId()).getValue(Product.class);
-                            float tempCost = Float.valueOf(product.getPrice());
-                            subtotalCost+= (tempCost * (finalTempQuantity));
-                            subtotalTextView = (TextView) view.findViewById(R.id.subtotalTextView);
-                            subtotalTextView.setText(String.format("%.2f", subtotalCost));
+
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            count++;
+                            //getting item reference in carts database
+                            final Item item = postSnapshot.getValue(Item.class);
+                            tempQuantity=item.getQuantity();
+                            //getting the actual price in products database
+                            final int finalTempQuantity = tempQuantity;
+
+                            productReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    subtotalTextView = (TextView) view.findViewById(R.id.subtotalTextView);
+//                            subtotalCost = Float.valueOf(subtotalTextView.getText().toString());
+                                    Product product = dataSnapshot.child(item.getProductId()).getValue(Product.class);
+                                    float tempCost = Float.valueOf(product.getPrice());
+                                    subtotalCost+= (tempCost * (finalTempQuantity));
+                                    subtotalTextView.setText(String.format("%.2f", subtotalCost));
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+                            //adding to the list
+                            items.add(item);
                         }
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
 
-                        }
-                    });
-                    //adding to the list
-                    items.add(item);
-                }
+                        if (getActivity()!=null){
+                            final ItemList itemAdapter = new ItemList(getActivity(), items);
 
+                            editCartTextView = (TextView) view.findViewById(R.id.editCartTextView);
+                            editCartTextView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    itemAdapter.setEditMode();
+                                }
+                            });
 
-                if (getActivity()!=null){
-                final ItemList itemAdapter = new ItemList(getActivity(), items);
-                cartItemListView.setAdapter(itemAdapter);}
+                            cartItemListView.setAdapter(itemAdapter);}
+
+                            if (count ==0) {// if no items exist in cart
+                                subtotalTextView = (TextView) view.findViewById(R.id.subtotalTextView);
+                                subtotalTextView.setText("0.0");
+                            }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+
             }
         });
 
 
-//        subtotalTextView = (TextView) view.findViewById(R.id.subtotalTextView);
-//        subtotalTextView.setText(String.format("%.2f", subtotalCost));
-//        subtotalTextView.setText(String.valueOf(tempQuantity));
+
+
+
+
 
 
 
