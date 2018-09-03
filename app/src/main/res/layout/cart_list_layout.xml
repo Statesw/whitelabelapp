@@ -48,8 +48,7 @@
                 android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toStartOf="@+id/linearLayout2"
                 app:layout_constraintStart_toEndOf="@+id/deleteCartBtn"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@mipmap/ic_launcher" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
                 android:id="@+id/linearLayout2"
@@ -69,7 +68,6 @@
                     android:layout_marginLeft="0dp"
                     android:layout_marginTop="7dp"
                     android:layout_toEndOf="@+id/cartItemImageView"
-                    android:text="TextView"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -142,7 +140,6 @@
                             android:layout_marginStart="116dp"
                             android:layout_weight="1"
                             android:gravity="right"
-                            android:text="TextView"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             app:layout_constraintEnd_toEndOf="parent"
