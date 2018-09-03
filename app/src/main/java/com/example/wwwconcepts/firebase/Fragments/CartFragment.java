@@ -1,6 +1,7 @@
 package com.example.wwwconcepts.firebase.Fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.wwwconcepts.firebase.CheckoutActivity;
 import com.example.wwwconcepts.firebase.POJOs.Item;
 import com.example.wwwconcepts.firebase.POJOs.ItemList;
 import com.example.wwwconcepts.firebase.POJOs.Product;
@@ -193,6 +195,14 @@ public class CartFragment extends Fragment {
         });
 
 
+
+        checkoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), CheckoutActivity.class);
+                startActivity(intent);
+            }
+        });
 
 
 

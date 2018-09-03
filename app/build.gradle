@@ -48,6 +48,10 @@ dependencies {
     implementation 'com.android.support:gridlayout-v7:28.0.0-rc01'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    //Stripe Payment
+    implementation 'com.stripe:stripe-android:6.1.2'
+
 }
 
 allprojects {
