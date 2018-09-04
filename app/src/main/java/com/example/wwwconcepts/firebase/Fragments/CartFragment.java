@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.example.wwwconcepts.firebase.CheckoutActivity;
 import com.example.wwwconcepts.firebase.POJOs.Item;
 import com.example.wwwconcepts.firebase.POJOs.ItemList;
+import com.example.wwwconcepts.firebase.POJOs.Order;
 import com.example.wwwconcepts.firebase.POJOs.Product;
 import com.example.wwwconcepts.firebase.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,6 +26,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -49,7 +52,7 @@ public class CartFragment extends Fragment {
 
     private ListView cartItemListView;
     private Button checkoutBtn;
-    private DatabaseReference cartsReference, productReference;
+    private DatabaseReference cartsReference, productReference, orderReference;
     private FirebaseAuth auth;
     private List<Item> items;
     private float subtotalCost;
@@ -98,7 +101,7 @@ public class CartFragment extends Fragment {
         checkoutBtn = (Button) view.findViewById(R.id.checkoutBtn);
         items = new ArrayList<>();
 
-        String userId = auth.getCurrentUser().getUid();
+        final String userId = auth.getCurrentUser().getUid();
         productReference = FirebaseDatabase.getInstance().getReference("products");
         cartsReference = FirebaseDatabase.getInstance().getReference("carts").child(userId);
         productReference.addValueEventListener(new ValueEventListener() {
@@ -199,7 +202,58 @@ public class CartFragment extends Fragment {
         checkoutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //copy and add to orders database: orders>userId>push:orderId>order
+                // make new Order under userId
+                Date currentTime = Calendar.getInstance().getTime();
+                subtotalTextView = (TextView) view.findViewById(R.id.subtotalTextView);
+                orderReference = FirebaseDatabase.getInstance().getReference("orders");
+                final String orderId = orderReference.child(userId).push().getKey();
+                final Order order = new Order(currentTime.toString(), "Payment Pending", subtotalTextView.getText().toString(), orderId);
+                orderReference.child(userId).child(orderId).setValue(order);
+                //read and copy existing in cart and write to Order>UserId>OrderId>Products
+                cartsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            //getting item reference in carts database
+                            final Item item = postSnapshot.getValue(Item.class);
+                            productReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    final Product product = dataSnapshot.child(item.getProductId()).getValue(Product.class);
+                                    orderReference.child(userId).child(orderId).child("products").child(item.getProductId()).child("price").setValue(product.getPrice());
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+
+                            orderReference.child(userId).child(orderId).child("products").child(item.getProductId()).child("quantity").setValue(item.getQuantity());
+                            orderReference.child(userId).child(orderId).child("products").child(item.getProductId()).child("productId").setValue(item.getProductId());
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+                //delete from cart
+                cartsReference.removeValue();
+
+                //args pass order id etc
+
+
                 Intent intent = new Intent(getActivity(), CheckoutActivity.class);
+                Bundle args = new Bundle();
+                args.putString("orderId", orderId);
+                intent.putExtras(args);
+
                 startActivity(intent);
             }
         });

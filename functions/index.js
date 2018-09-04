@@ -1,32 +1,58 @@
-// The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
 const functions = require('firebase-functions');
-
-// The Firebase Admin SDK to access the Firebase Realtime Database.
 const admin = require('firebase-admin');
-admin.initializeApp();
-// Take the text parameter passed to this HTTP endpoint and insert it into the
-// Realtime Database under the path /messages/:pushId/original
-exports.addMessage = functions.https.onRequest((req, res) => {
-  // Grab the text parameter.
-  const original = req.query.text;
-  // Push the new message into the Realtime Database using the Firebase Admin SDK.
-  return admin.database().ref('/messages').push({original: original}).then((snapshot) => {
-    // Redirect with 303 SEE OTHER to the URL of the pushed object in the Firebase console.
-    return res.redirect(303, snapshot.ref.toString());
-  });
+admin.initializeApp(functions.config().firebase);
+const express = require('express');
+const cors = require('cors')({origin: true});
+const app = express();
+
+// TODO: Remember to set token using >> firebase functions:config:set stripe.token="SECRET_STRIPE_TOKEN_HERE"
+const stripe = require('stripe')(functions.config().stripe.token);
+
+function charge(req, res) {
+    const body = JSON.parse(req.body);
+    const token = body.token.id;
+    const amount = body.charge.amount;
+    const currency = body.charge.currency;
+
+    // Charge card
+    stripe.charges.create({
+        amount,
+        currency,
+        description: 'WhiteLabel Charge',
+        source: token,
+    }).then(charge => {
+        send(res, 200, {
+            message: 'Success',
+            charge,
+        });
+    }).catch(err => {
+        console.log(err);
+        send(res, 500, {
+            error: err.message,
+        });
+    });
+}
+
+function send(res, code, body) {
+    res.send({
+        statusCode: code,
+        headers: {'Access-Control-Allow-Origin': '*'},
+        body: JSON.stringify(body),
+    });
+}
+
+app.use(cors);
+app.post('/', (req, res) => {
+
+    // Catch any unexpected errors to prevent crashing
+    try {
+        charge(req, res);
+    } catch(e) {
+        console.log(e);
+        send(res, 500, {
+            error: `The server received an unexpected error. Please try again and contact the site admin if the error persists.`,
+        });
+    }
 });
 
-
-// Listens for new messages added to /messages/:pushId/original and creates an
-// uppercase version of the message to /messages/:pushId/uppercase
-exports.makeUppercase = functions.database.ref('/messages/{pushId}/original')
-    .onCreate((snapshot, context) => {
-      // Grab the current value of what was written to the Realtime Database.
-      const original = snapshot.val();
-      console.log('Uppercasing', context.params.pushId, original);
-      const uppercase = original.toUpperCase();
-      // You must return a Promise when performing asynchronous tasks inside a Functions such as
-      // writing to the Firebase Realtime Database.
-      // Setting an "uppercase" sibling in the Realtime Database returns a Promise.
-      return snapshot.ref.parent.child('uppercase').set(uppercase);
-    });
+exports.charge = functions.https.onRequest(app);
