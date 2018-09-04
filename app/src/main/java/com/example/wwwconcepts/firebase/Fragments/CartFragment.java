@@ -16,6 +16,7 @@ import com.example.wwwconcepts.firebase.CheckoutActivity;
 import com.example.wwwconcepts.firebase.POJOs.Item;
 import com.example.wwwconcepts.firebase.POJOs.ItemList;
 import com.example.wwwconcepts.firebase.POJOs.Order;
+import com.example.wwwconcepts.firebase.POJOs.OrderItem;
 import com.example.wwwconcepts.firebase.POJOs.Product;
 import com.example.wwwconcepts.firebase.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -222,7 +223,8 @@ public class CartFragment extends Fragment {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     final Product product = dataSnapshot.child(item.getProductId()).getValue(Product.class);
-                                    orderReference.child(userId).child(orderId).child("products").child(item.getProductId()).child("price").setValue(product.getPrice());
+                                    OrderItem orderItem = new OrderItem(product.getPrice(), String.valueOf(item.getQuantity()),  item.getProductId());
+                                    orderReference.child(userId).child(orderId).child("products").child(item.getProductId()).setValue(orderItem);
                                 }
 
                                 @Override
@@ -230,11 +232,7 @@ public class CartFragment extends Fragment {
 
                                 }
                             });
-
-
-                            orderReference.child(userId).child(orderId).child("products").child(item.getProductId()).child("quantity").setValue(item.getQuantity());
-                            orderReference.child(userId).child(orderId).child("products").child(item.getProductId()).child("productId").setValue(item.getProductId());
-                        }
+}
                     }
 
                     @Override

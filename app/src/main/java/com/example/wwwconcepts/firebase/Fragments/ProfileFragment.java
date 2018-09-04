@@ -21,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.example.wwwconcepts.firebase.Constants;
@@ -53,6 +54,8 @@ public class ProfileFragment extends Fragment {
     private TextView usernameTextView;
     private EditText urlEditText;
     private ImageButton addPhotoFloatingActionBtn;
+    private Button orderHistoryBtn;
+    private Toolbar toolbar;
 
 
     //uri to store file
@@ -141,6 +144,20 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 showFileChooser();
+            }
+        });
+
+        orderHistoryBtn = (Button) view.findViewById(R.id.orderHistoryBtn);
+        orderHistoryBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //new fragment showing list of orders
+                AllOrdersFragment nextfrag = new AllOrdersFragment();
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frame_container, nextfrag, "allorders")
+                        .addToBackStack(null)
+                        .commit();
+                //onclick> back to orderactivity
             }
         });
 

@@ -2,14 +2,15 @@ package com.example.wwwconcepts.firebase.POJOs;
 
 public class OrderItem {
     private String price;
-    private int quantity;
+    private String quantity;
     private String productId;
 
     public OrderItem(){}
 
-    public OrderItem(String price, int quantity){
+    public OrderItem(String price, String quantity, String productId){
         this.price = price;
         this.quantity=quantity;
+        this.productId=productId;
     }
 
     public String getPrice() {
@@ -20,11 +21,11 @@ public class OrderItem {
         this.price = price;
     }
 
-    public int getQuantity() {
+    public String getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(String quantity) {
         this.quantity = quantity;
     }
 

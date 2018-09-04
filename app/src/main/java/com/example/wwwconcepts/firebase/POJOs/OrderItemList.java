@@ -59,10 +59,10 @@ public class OrderItemList extends ArrayAdapter<OrderItem> {
         });
 
         String price = orderitem.getPrice();
-        int quantity = orderitem.getQuantity();
+        String quantity = orderitem.getQuantity();
 
         orderItemPriceTextView.setText("Price per unit: $"+price);
-        orderQuantityTextView.setText(String.valueOf(quantity)+" unit(s) ordered");
+        orderQuantityTextView.setText(quantity+" unit(s) ordered");
 
         Float subtotal = Float.valueOf(price) * Float.valueOf(quantity);
         orderSubtotalTextView.setText("$"+String.format("%.2f", subtotal));

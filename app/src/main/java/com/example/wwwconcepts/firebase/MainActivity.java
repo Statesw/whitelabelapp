@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.wwwconcepts.firebase.Fragments.AllOrdersFragment;
 import com.example.wwwconcepts.firebase.Fragments.CartFragment;
 import com.example.wwwconcepts.firebase.Fragments.EditProductFragment;
 import com.example.wwwconcepts.firebase.Fragments.ProductDetailsFragment;
@@ -25,7 +26,8 @@ public class MainActivity extends AppCompatActivity implements ProductDetailsFra
         ProfileFragment.OnFragmentInteractionListener,
         PromotionsFragment.OnFragmentInteractionListener,
         EditProductFragment.OnFragmentInteractionListener,
-        CartFragment.OnFragmentInteractionListener{
+        CartFragment.OnFragmentInteractionListener,
+        AllOrdersFragment.OnFragmentInteractionListener{
 
 //    private ActionBar toolbar;
 private Toolbar toolbar;
