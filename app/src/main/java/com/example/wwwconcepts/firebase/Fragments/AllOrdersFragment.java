@@ -1,14 +1,17 @@
 package com.example.wwwconcepts.firebase.Fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.example.wwwconcepts.firebase.CheckoutActivity;
 import com.example.wwwconcepts.firebase.POJOs.Order;
 import com.example.wwwconcepts.firebase.POJOs.OrderList;
 import com.example.wwwconcepts.firebase.R;
@@ -89,6 +92,8 @@ public class AllOrdersFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
         String userId = auth.getCurrentUser().getUid();
         orders = new ArrayList<>();
+
+        allOrdersListView = (ListView) view.findViewById(R.id.allOrdersListView);
         ordersReference = FirebaseDatabase.getInstance().getReference("orders").child(userId);
         ordersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -98,8 +103,22 @@ public class AllOrdersFragment extends Fragment {
                     orders.add(order);
                 }
                 final OrderList orderAdapter = new OrderList(getActivity(), orders);
-                allOrdersListView = (ListView) view.findViewById(R.id.allOrdersListView);
                 allOrdersListView.setAdapter(orderAdapter);
+
+                allOrdersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Order order = orderAdapter.getItem(position);
+
+                        Intent intent = new Intent(getActivity(), CheckoutActivity.class);
+                        Bundle args = new Bundle();
+                        args.putString("orderId", order.getOrderId());
+                        intent.putExtras(args);
+                        startActivity(intent);
+                    }
+                });
+
+
 
             }
 
@@ -108,6 +127,10 @@ public class AllOrdersFragment extends Fragment {
 
             }
         });
+
+
+
+
 
 
         return view;

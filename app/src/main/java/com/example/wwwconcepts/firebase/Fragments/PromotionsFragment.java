@@ -1,14 +1,33 @@
 package com.example.wwwconcepts.firebase.Fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
 
+import com.example.wwwconcepts.firebase.POJOs.Promo;
+import com.example.wwwconcepts.firebase.POJOs.PromoList;
+import com.example.wwwconcepts.firebase.POJOs.User;
+import com.example.wwwconcepts.firebase.PromoCfmActivity;
 import com.example.wwwconcepts.firebase.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,6 +48,15 @@ public class PromotionsFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    private TextView introTextView, allPointsTextView;
+    private ListView promoListView;
+
+    private DatabaseReference userReference;
+    private FirebaseAuth auth;
+    private List<Promo> promos;
+
+    private DatabaseReference promoReference;
 
     public PromotionsFragment() {
         // Required empty public constructor
@@ -64,8 +92,85 @@ public class PromotionsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        final View view =inflater.inflate(R.layout.fragment_promotions, container, false);
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_promotions, container, false);
+
+        introTextView = (TextView) view.findViewById(R.id.introTextView);
+        allPointsTextView = (TextView) view.findViewById(R.id.allPointsTextView);
+        promoListView = (ListView) view.findViewById(R.id.promoListView);
+
+        auth = FirebaseAuth.getInstance();
+        String userId = auth.getCurrentUser().getUid();
+        introTextView.setText("Hey "+ auth.getCurrentUser().getDisplayName()+",");
+
+        userReference = FirebaseDatabase.getInstance().getReference("users").child(userId);
+        userReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class);
+                allPointsTextView.setText("Points: "+user.getPoints());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        promos = new ArrayList<>();
+        promoReference = FirebaseDatabase.getInstance().getReference("promos");
+        promoReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                promos.clear();
+                for(DataSnapshot postSnapshot : dataSnapshot.getChildren()){
+                    final Promo promo = postSnapshot.getValue(Promo.class);
+                    promos.add(promo);
+                }
+                final PromoList promoAdapter = new PromoList(getActivity(), promos);
+                promoListView.setAdapter(promoAdapter);
+                //onclick listener
+                promoListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Promo promo = promoAdapter.getItem(position);
+                        Intent intent = new Intent(getActivity(), PromoCfmActivity.class);
+                        Bundle args = new Bundle();
+                        args.putString("promoId", promo.getPromoId());
+                        intent.putExtras(args);
+                        startActivity(intent);
+                    }
+                });
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+
+
+        //TODO: for admin only
+        final EditText addNameEditText = (EditText) view.findViewById(R.id.addNameEditText);
+        final EditText addPointsEditText = (EditText) view.findViewById(R.id.addPointsEditText);
+        Button addPromoBtn = (Button) view.findViewById(R.id.addPromoBtn);
+        addPromoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                String promoId = promoReference.push().getKey();
+                Promo promo = new Promo(addNameEditText.getText().toString(), Integer.valueOf(addPointsEditText.getText().toString()), promoId);
+                promoReference.child(promoId).setValue(promo);
+            }
+        });
+
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

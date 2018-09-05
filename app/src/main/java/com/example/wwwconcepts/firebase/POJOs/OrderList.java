@@ -33,10 +33,12 @@ public class OrderList extends ArrayAdapter<Order> {
 
         final TextView orderIdTextView = (TextView) listViewItem.findViewById(R.id.orderIdTextView);
         final TextView orderDateTextView = (TextView) listViewItem.findViewById(R.id.orderDateTextView);
+        final TextView payStatusTextView = (TextView) listViewItem.findViewById(R.id.payStatusTextView);
 
 
         orderIdTextView.setText("Order #: " + order.getOrderId());
         orderDateTextView.setText(order.getDate());
+        payStatusTextView.setText(order.getPayStatus().toUpperCase());
 
 
 
@@ -44,6 +46,9 @@ public class OrderList extends ArrayAdapter<Order> {
     }
 
 
+    public Order getItem(int position){
+        return orders.get(position);
+    }
 
 
 }

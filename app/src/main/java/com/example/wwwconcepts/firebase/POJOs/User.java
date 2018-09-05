@@ -10,6 +10,7 @@ public class User {
     public String userId;
     public HashMap<String, HashMap<String, String>> reviews;
     private boolean admin;
+    private int points;
 
     // Default constructor required for calls to
     // DataSnapshot.getValue(User.class)
@@ -20,6 +21,7 @@ public class User {
         this.userId = userId;
         this.reviews = reviews;
         this.admin = false;
+        this.points = 0;
     }
 
     public String getUserId() {
@@ -40,5 +42,13 @@ public class User {
 
     public boolean getAdmin() {
         return admin;
+    }
+
+    public void addPoints(int addedPts){
+        this.points+=addedPts;
+    }
+
+    public int getPoints() {
+        return points;
     }
 }

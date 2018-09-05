@@ -29,7 +29,8 @@
         // hide bottomnavbar when keyboard is open
         <activity android:name=".SignupActivity" />
         <activity android:name=".ResetPasswordActivity" />
-        <activity android:name=".CheckoutActivity"></activity>
+        <activity android:name=".CheckoutActivity" />
+        <activity android:name=".PromoCfmActivity"></activity>
     </application>
 
 </manifest>

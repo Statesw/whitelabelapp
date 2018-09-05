@@ -1,5 +1,6 @@
 package com.example.wwwconcepts.firebase;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.wwwconcepts.firebase.POJOs.Order;
 import com.example.wwwconcepts.firebase.POJOs.OrderItem;
 import com.example.wwwconcepts.firebase.POJOs.OrderItemList;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,7 +39,7 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private Button paynowBtn;
     private List<OrderItem> orderitems;
-    private DatabaseReference orderReference;
+    private DatabaseReference orderReference, paymentStatusReference;
     private FirebaseAuth auth;
     private ListView orderItemListView;
 
@@ -109,8 +111,10 @@ public class CheckoutActivity extends AppCompatActivity {
                                 // Send token to your server to handle payment
                                 //Somewhat like :MyServer.chargeToken(token);
                                 //https://us-central1-loginregister-8754b.cloudfunctions.net/charge
-                                sendRequest(token, 12);
+//                                sendRequest(token, 12);
 
+                                TextView testTV = (TextView) findViewById(R.id.testTV);
+                                testTV.setText(token.toString());
                                 //show that loading is done before changing to  next activity?
                             }
                             public void onError(Exception error) {
@@ -126,6 +130,35 @@ public class CheckoutActivity extends AppCompatActivity {
                 }
             }
         });
+
+        final TextView paidTextView = (TextView) findViewById(R.id.paidTextView);
+        paymentStatusReference = FirebaseDatabase.getInstance().getReference("orders").child(userId).child(orderId);
+        paymentStatusReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Order order = dataSnapshot.getValue(Order.class);
+                if (order.getPayStatus().equalsIgnoreCase("PAID")) {
+                    paynowBtn.setVisibility(View.GONE);
+                    CardInputWidget card_input_widget = (CardInputWidget) findViewById(R.id.card_input_widget);
+                    card_input_widget.setVisibility(View.GONE);
+                    paidTextView.setText("PAID");
+                    paidTextView.setTextColor(Color.parseColor("#009e60"));
+                }
+                else if(order.getPayStatus().equalsIgnoreCase("PAYMENT PENDING")){//might need to change name of new order.paymentstatus
+                    paidTextView.setText("AWAITING PAYMENT");
+                    paidTextView.setTextColor(Color.parseColor("#f9812a"));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+
 
 
     }
