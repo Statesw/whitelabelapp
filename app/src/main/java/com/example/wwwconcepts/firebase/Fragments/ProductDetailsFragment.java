@@ -264,33 +264,35 @@ public class ProductDetailsFragment extends Fragment {
                     reviews.add(review);
                 }
 
-                //creating adapter
-                final ReviewList reviewAdapter = new ReviewList(getActivity(), reviews);
+                if (getActivity()!=null) {
+                    //creating adapter
+                    final ReviewList reviewAdapter = new ReviewList(getActivity(), reviews);
 
 
-                //attaching adapter to the listview
-                reviewsListView.setAdapter(reviewAdapter);
+                    //attaching adapter to the listview
+                    reviewsListView.setAdapter(reviewAdapter);
 //              Measure list height after drawn
-                final ViewTreeObserver vto = view.getViewTreeObserver();
-                if (vto.isAlive()) {
-                    vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @Override
-                        public void onGlobalLayout() {
-                            int totalHeight = 0;
-                            for (int i = 0; i < reviewAdapter.getCount(); i++) {
-                                View listItem = reviewAdapter.getView(i, null, reviewsListView);
-                                listItem.measure(0, 0);
-                                totalHeight += listItem.getMeasuredHeight();
-                            }
-                            setListViewHeightBasedOnChildren(reviewsListView, totalHeight);
+                    final ViewTreeObserver vto = view.getViewTreeObserver();
+                    if (vto.isAlive()) {
+                        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                int totalHeight = 0;
+                                for (int i = 0; i < reviewAdapter.getCount(); i++) {
+                                    View listItem = reviewAdapter.getView(i, null, reviewsListView);
+                                    listItem.measure(0, 0);
+                                    totalHeight += listItem.getMeasuredHeight();
+                                }
+                                setListViewHeightBasedOnChildren(reviewsListView, totalHeight);
 
-                            if (Build.VERSION.SDK_INT < 16) {
-                                vto.removeGlobalOnLayoutListener(this);
-                            } else {
-                                vto.removeOnGlobalLayoutListener(this);
+                                if (Build.VERSION.SDK_INT < 16) {
+                                    vto.removeGlobalOnLayoutListener(this);
+                                } else {
+                                    vto.removeOnGlobalLayoutListener(this);
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
 
             }
