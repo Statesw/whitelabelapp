@@ -59,7 +59,7 @@ public class ProductDetailsFragment extends Fragment {
     private String productId;
 
     private OnFragmentInteractionListener mListener;
-    private TextView itemNameTextView, priceTextView, ratingTextView;
+    private TextView itemNameTextView, priceTextView, ratingTextView, descTextView;
     private ImageView prodDetailsImage;
 
     private EditText reviewEditText, quantityEditText;
@@ -170,6 +170,22 @@ public class ProductDetailsFragment extends Fragment {
         }
 
 
+        descTextView = (TextView) view.findViewById(R.id.descTextView);
+
+        productReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Product product = dataSnapshot.getValue(Product.class);
+                descTextView.setText(product.getDescription());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
         quantityEditText = (EditText) view.findViewById(R.id.quantityEditText);
         plusBtn = (Button) view.findViewById(R.id.plusBtn);
         minusBtn = (Button) view.findViewById(R.id.minusBtn);
@@ -276,6 +292,8 @@ public class ProductDetailsFragment extends Fragment {
                 }
                 else
                     ratingTextView.setText("-");
+                TextView reviewHeadingTextView = (TextView) view.findViewById(R.id.reviewHeadingTextView);
+                reviewHeadingTextView.setText("Reviews ("+ratingCount+")");
 
 
                 if (getActivity()!=null) {
@@ -368,6 +386,8 @@ public class ProductDetailsFragment extends Fragment {
                         .commit();
             }
         });
+
+
 
 
 

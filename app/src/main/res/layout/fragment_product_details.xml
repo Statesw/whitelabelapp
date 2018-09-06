@@ -96,18 +96,17 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/textView9"
+                android:id="@+id/descTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="This is the paragraph of description. Possible things to list here include, history of the product, whereabouts, production place and date. Also, the following text should be able to be retrieved from the database. This is just a bunch of dummy @string/common_google_play_services_enable_text"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/prodDetailsImage" />
 
             <TextView
-                android:id="@+id/textView3"
+                android:id="@+id/reviewHeadingTextView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="8dp"

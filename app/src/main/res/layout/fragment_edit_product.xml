@@ -58,16 +58,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:inputType="textPersonName"
-                android:text="product name " />
+                android:inputType="textPersonName" />
 
             <EditText
                 android:id="@+id/priceEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:inputType="textPersonName"
-                android:text="Price" />
+                android:inputType="textPersonName" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -81,8 +79,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:inputType="textMultiLine"
-                android:text="This is the paragraph of description. Possible things to list here include, history of the product, whereabouts, production place and date. Also, the following text should be able to be retrieved from the database. This is just a bunch of dummy @string/common_google_play_services_enable_text" />
+                android:inputType="textMultiLine" />
 
             <Button
                 android:id="@+id/saveBtn"

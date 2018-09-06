@@ -98,14 +98,16 @@ private Toolbar toolbar;
                         loadFragment(fragment);
                         toolbar.setTitle("White Label");
                     }
-                    break;
-                case R.id.navigation_profile:
-                    break;
+                    return;
                 case R.id.navigation_promotions:
+
+                    return;
+                case R.id.navigation_profile:
                     fragment = new ProfileFragment();
                     loadFragment(fragment);
                     toolbar.setTitle("Profile");
-                    break;
+                    return;
+
             }
 
         }

@@ -21,11 +21,15 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.wwwconcepts.firebase.Constants;
+import com.example.wwwconcepts.firebase.POJOs.Product;
 import com.example.wwwconcepts.firebase.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -52,7 +56,7 @@ public class EditProductFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
-    private EditText itemNameEditText, priceEditText, desEditText;
+    private EditText itemNameEditText, priceEditText, descEditText;
     private ImageView prodDetailsImage;
     private Button saveBtn, cancelBtn, chooseBtn;
 
@@ -106,7 +110,7 @@ public class EditProductFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_edit_product, container, false);
         itemNameEditText = (EditText) view.findViewById(R.id.itemNameEditText);
         priceEditText = (EditText) view.findViewById(R.id.priceEditText);
-        desEditText = (EditText) view.findViewById(R.id.descEditText);
+        descEditText = (EditText) view.findViewById(R.id.descEditText);
         prodDetailsImage = (ImageView) view.findViewById(R.id.prodDetailsImage);
         Bundle bundle = getArguments();
         itemNameEditText.setText(bundle.getString("title"));
@@ -116,6 +120,20 @@ public class EditProductFragment extends Fragment {
         Glide.with(getActivity().getApplicationContext())
                 .load(imageUrl)
                 .into(prodDetailsImage);
+
+        productReference = FirebaseDatabase.getInstance().getReference().child("products").child(productId);
+        productReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Product product = dataSnapshot.getValue(Product.class);
+                descEditText.setText(product.getDescription());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         chooseBtn = (Button) view.findViewById(R.id.chooseBtn);
         chooseBtn.setOnClickListener(new View.OnClickListener() {
@@ -151,6 +169,7 @@ public class EditProductFragment extends Fragment {
                 productReference = FirebaseDatabase.getInstance().getReference().child("products").child(productId);
                 productReference.child("title").setValue(itemNameEditText.getText().toString());
                 productReference.child("price").setValue(priceEditText.getText().toString());
+                productReference.child("description").setValue(descEditText.getText().toString());
 
                 updateProductPhoto(productId);
 

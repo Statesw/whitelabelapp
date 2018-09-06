@@ -106,4 +106,6 @@ public class ReviewHistoryList extends ArrayAdapter<Review> {
 
         return listViewItem;
     }
+
+    public Review getItem (int position) {return reviews.get(position);}
 }

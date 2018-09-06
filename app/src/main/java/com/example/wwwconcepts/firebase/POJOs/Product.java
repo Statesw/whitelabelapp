@@ -12,6 +12,7 @@ public class Product {
     public String price;
     public String productId;
     public HashMap<String, HashMap<String,String>> reviews;
+    public String description;
 
     // Default constructor required for calls to
     // DataSnapshot.getValue(User.class)
@@ -24,6 +25,7 @@ public class Product {
         this.price = price;
         this.productId = productId;
         this.reviews = reviews;
+        this.description="";
     }
 
     public String getTitle() {
@@ -66,4 +68,11 @@ public class Product {
         this.reviews = reviews;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

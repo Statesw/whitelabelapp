@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.wwwconcepts.firebase.POJOs.Review;
@@ -45,7 +46,7 @@ public class AllReviewsFragment extends Fragment {
     private List<Review> reviews;
     private FirebaseAuth auth;
     private DatabaseReference userReviewsReference;
-    private ListView reviewHistoryList;
+    private ListView reviewHistoryListView;
 
     public AllReviewsFragment() {
         // Required empty public constructor
@@ -86,7 +87,7 @@ public class AllReviewsFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
         String userId = auth.getCurrentUser().getUid();
         reviews = new ArrayList<>();
-        reviewHistoryList = (ListView) view.findViewById(R.id.reviewHistoryList);
+        reviewHistoryListView = (ListView) view.findViewById(R.id.reviewHistoryList);
 
         userReviewsReference = FirebaseDatabase.getInstance().getReference("users").child(userId).child("reviews");
         userReviewsReference.addValueEventListener(new ValueEventListener() {
@@ -100,7 +101,25 @@ public class AllReviewsFragment extends Fragment {
 
                 if (getActivity()!=null) {
                     final ReviewHistoryList reviewAdapter = new ReviewHistoryList(getActivity(), reviews);
-                    reviewHistoryList.setAdapter(reviewAdapter);
+                    reviewHistoryListView.setAdapter(reviewAdapter);
+
+                    reviewHistoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            Review review = reviewAdapter.getItem(position);
+
+                            ProductDetailsFragment nextFrag = new ProductDetailsFragment();
+                            Bundle args = new Bundle();
+                            args.putString("productId", review.getProductId());
+                            args.putBoolean("refetch", true);
+                            nextFrag.setArguments(args);
+
+                            getActivity().getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.frame_container, nextFrag, "tag")
+                                    .addToBackStack(null)
+                                    .commit();
+                        }
+                    });
                 }
             }
 

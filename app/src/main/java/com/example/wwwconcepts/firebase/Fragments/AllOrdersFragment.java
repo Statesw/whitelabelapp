@@ -102,6 +102,7 @@ public class AllOrdersFragment extends Fragment {
                     final Order order = postSnapshot.getValue(Order.class);
                     orders.add(order);
                 }
+
                 final OrderList orderAdapter = new OrderList(getActivity(), orders);
                 allOrdersListView.setAdapter(orderAdapter);
 
