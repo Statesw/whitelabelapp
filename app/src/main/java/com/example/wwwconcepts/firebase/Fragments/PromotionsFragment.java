@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.wwwconcepts.firebase.POJOs.Promo;
 import com.example.wwwconcepts.firebase.POJOs.PromoList;
@@ -99,6 +100,11 @@ public class PromotionsFragment extends Fragment {
         allPointsTextView = (TextView) view.findViewById(R.id.allPointsTextView);
         promoListView = (ListView) view.findViewById(R.id.promoListView);
 
+        //admin add promo func
+        final EditText addNameEditText = (EditText) view.findViewById(R.id.addNameEditText);
+        final EditText addPointsEditText = (EditText) view.findViewById(R.id.addPointsEditText);
+        final Button addPromoBtn = (Button) view.findViewById(R.id.addPromoBtn);
+
         auth = FirebaseAuth.getInstance();
         String userId = auth.getCurrentUser().getUid();
         introTextView.setText("Hey "+ auth.getCurrentUser().getDisplayName()+",");
@@ -109,6 +115,11 @@ public class PromotionsFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 allPointsTextView.setText("Points: "+user.getPoints());
+                if(user.getAdmin()==true){
+                    addNameEditText.setVisibility(View.VISIBLE);
+                    addPointsEditText.setVisibility(View.VISIBLE);
+                    addPromoBtn.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
@@ -155,9 +166,6 @@ public class PromotionsFragment extends Fragment {
 
 
         //TODO: for admin only
-        final EditText addNameEditText = (EditText) view.findViewById(R.id.addNameEditText);
-        final EditText addPointsEditText = (EditText) view.findViewById(R.id.addPointsEditText);
-        Button addPromoBtn = (Button) view.findViewById(R.id.addPromoBtn);
         addPromoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -166,6 +174,9 @@ public class PromotionsFragment extends Fragment {
                 String promoId = promoReference.push().getKey();
                 Promo promo = new Promo(addNameEditText.getText().toString(), Integer.valueOf(addPointsEditText.getText().toString()), promoId);
                 promoReference.child(promoId).setValue(promo);
+                addNameEditText.setText("");
+                addPointsEditText.setText("");
+                Toast.makeText(getActivity().getApplicationContext(), "Promo Added!", Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -83,7 +83,7 @@ public class ProductsFragment extends Fragment {
     //new product: empty review list
     HashMap<String, HashMap<String,String>> reviews;
 
-    //switch to hide add options: TODO: for future admin privileges
+    //switch to hide add options
     private Switch editSw;
 
 

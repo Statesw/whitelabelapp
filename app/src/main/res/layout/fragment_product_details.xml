@@ -78,7 +78,7 @@
                     android:text="Ratings:" />
 
                 <TextView
-                    android:id="@+id/textView11"
+                    android:id="@+id/ratingTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -134,6 +134,19 @@
                 android:hint="Write Review"
                 android:inputType="textImeMultiLine"
                 android:visibility="visible" />
+
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:numStars="5"
+                android:scaleX="0.7"
+                android:scaleY="0.7"
+                android:stepSize="1"
+                android:isIndicator="false"/>
 
             <Button
                 android:id="@+id/reviewBtn"

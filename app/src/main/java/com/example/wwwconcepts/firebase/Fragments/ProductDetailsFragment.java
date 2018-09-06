@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,12 +59,13 @@ public class ProductDetailsFragment extends Fragment {
     private String productId;
 
     private OnFragmentInteractionListener mListener;
-    private TextView itemNameTextView, priceTextView;
+    private TextView itemNameTextView, priceTextView, ratingTextView;
     private ImageView prodDetailsImage;
 
     private EditText reviewEditText, quantityEditText;
     private Button reviewBtn, deleteBtn, editBtn, plusBtn, minusBtn, addToCartBtn;
     private ListView reviewsListView;
+    private RatingBar mRatingBar;
 
 
     private List<Review> reviews;
@@ -226,7 +228,7 @@ public class ProductDetailsFragment extends Fragment {
         });
 
 
-
+        mRatingBar = (RatingBar) view.findViewById(R.id.ratingBar);
         databaseReviews = productReference.child("reviews");
         reviewEditText = (EditText) view.findViewById(R.id.reviewEditText);
         reviewBtn = (Button) view.findViewById(R.id.reviewBtn);
@@ -242,13 +244,14 @@ public class ProductDetailsFragment extends Fragment {
 
 
 
-
+        ratingTextView = (TextView) view.findViewById(R.id.ratingTextView);
         //update reviews live
         databaseReviews.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 reviews.clear();
-
+                float overallRating =0;
+                int ratingCount =0;
 
                 //iterating through all the nodes
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
@@ -262,7 +265,18 @@ public class ProductDetailsFragment extends Fragment {
                         review.setOwner(false);
                     //adding to the list
                     reviews.add(review);
+
+                    ratingCount++;
+                    overallRating+= Float.valueOf(review.getRating());
                 }
+
+                if(ratingCount>0) {
+                    overallRating = overallRating / ratingCount;
+                    ratingTextView.setText(String.format("%.2f", overallRating));
+                }
+                else
+                    ratingTextView.setText("-");
+
 
                 if (getActivity()!=null) {
                     //creating adapter
@@ -356,6 +370,8 @@ public class ProductDetailsFragment extends Fragment {
         });
 
 
+
+
         return view;
     }
 
@@ -403,14 +419,23 @@ public class ProductDetailsFragment extends Fragment {
         String username = auth.getCurrentUser().getDisplayName();
         String userId = auth.getCurrentUser().getUid();
         //checking if the value is provided
-        if (!TextUtils.isEmpty(reviewPost)) {
+        if (TextUtils.isEmpty(reviewPost)) {
 
+
+            //if the value is not given displaying a toast
+            Toast.makeText(getActivity(), "Unable to post blank review!", Toast.LENGTH_LONG).show();
+
+        }
+        else if(mRatingBar.getRating()==0){
+            Toast.makeText(getActivity(), "Please rate the product!", Toast.LENGTH_LONG).show();
+        }
+        else {
             //getting a unique id using push().getKey() method
             //it will create a unique id and we will use it as the Primary Key for our Author
             String id = databaseReviews.push().getKey();
 
             //creating an Review Object
-            Review review = new Review(id, username, email, userId, reviewPost, productId);
+            Review review = new Review(id, username, email, userId, reviewPost, productId, String.valueOf(mRatingBar.getRating()));
 
             //Saving the review
             databaseReviews.child(id).setValue(review);
@@ -428,9 +453,6 @@ public class ProductDetailsFragment extends Fragment {
             //displaying a success toast
 
             Toast.makeText(getActivity(), "Review added successfully!", Toast.LENGTH_LONG).show();
-        } else {
-            //if the value is not given displaying a toast
-            Toast.makeText(getActivity(), "Unable to post blank review!", Toast.LENGTH_LONG).show();
         }
 
 

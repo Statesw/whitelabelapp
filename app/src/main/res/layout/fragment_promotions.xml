@@ -44,7 +44,9 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Promotion Description"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:textSize="12sp"
+            android:visibility="gone" />
 
         <EditText
             android:id="@+id/addPointsEditText"
@@ -52,13 +54,17 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Points Required"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:textSize="12sp"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/addPromoBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add Promo" />
+            android:text="Add Promo"
+            android:textSize="12sp"
+            android:visibility="gone" />
 
         <ListView
             android:id="@+id/promoListView"

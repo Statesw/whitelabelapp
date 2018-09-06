@@ -22,13 +22,14 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.List;
 
 
-public class ReviewList extends ArrayAdapter<Review> {
+public class ReviewHistoryList extends ArrayAdapter<Review> {
     private Activity context;
     List<Review> reviews;
-    private DatabaseReference reviewReference, userRecordReference, adminCheckReference;
+    private DatabaseReference reviewReference, userRecordReference, productReference;
+    private ImageButton reviewDeleteBtn;
 
-    public ReviewList(Activity context, List<Review> reviews) {
-        super(context, R.layout.reviews_layout_list, reviews);
+    public ReviewHistoryList(Activity context, List<Review> reviews) {
+        super(context, R.layout.reviews_history_layout_list, reviews);
         this.context = context;
         this.reviews = reviews;
     }
@@ -38,27 +39,28 @@ public class ReviewList extends ArrayAdapter<Review> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
-        View listViewItem = inflater.inflate(R.layout.reviews_layout_list, null, true);
+        View listViewItem = inflater.inflate(R.layout.reviews_history_layout_list, null, true);
 
         TextView textViewName = (TextView) listViewItem.findViewById(R.id.authorTextView);
         TextView textViewGenre = (TextView) listViewItem.findViewById(R.id.postTextView);
+        final TextView prodRHTextView = (TextView) listViewItem.findViewById(R.id.prodRHTextView);
 
         Review review = reviews.get(position);
+
 
 
         textViewName.setText("by " + review.getReviewAuthorName() +" (" + review.getReviewAuthorEmail() + ")");
         textViewGenre.setText(review.getReviewPost());
 
-        final ImageButton reviewDeleteBtn = (ImageButton) listViewItem.findViewById(R.id.reviewDeleteBtn);
-
+        reviewDeleteBtn = (ImageButton) listViewItem.findViewById(R.id.reviewDeleteBtn);
         reviewDeleteBtn.setTag(position);
         reviewDeleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int position = (int)v.getTag();
                 Review review = reviews.get(position);
-                userRecordReference = FirebaseDatabase.getInstance().getReference().child("users").child(review.getUserId()).child("reviews").child(review.getReviewId());
                 reviewReference = FirebaseDatabase.getInstance().getReference().child("products").child(review.getProductId()).child("reviews").child(review.getReviewId());
+                userRecordReference = FirebaseDatabase.getInstance().getReference().child("users").child(review.getUserId()).child("reviews").child(review.getReviewId());
                 //pop up are you sure
                 AlertDialog.Builder adb = new AlertDialog.Builder(context);
                 adb.setTitle("Confirmation");
@@ -80,20 +82,19 @@ public class ReviewList extends ArrayAdapter<Review> {
         });
 
 
-        if(review.getOwner()==true)
-            reviewDeleteBtn.setVisibility(View.VISIBLE);
-        else
-            reviewDeleteBtn.setVisibility(View.GONE);
 
         final String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        adminCheckReference = FirebaseDatabase.getInstance().getReference().child("users").child(userId);
-        adminCheckReference.addListenerForSingleValueEvent(new ValueEventListener() {
+
+        RatingBar indicatorRating = (RatingBar) listViewItem.findViewById(R.id.indicatorRating);
+        indicatorRating.setRating(Float.valueOf(review.getRating()));
+
+
+        productReference = FirebaseDatabase.getInstance().getReference("products").child(review.getProductId());
+        productReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                User currentUser = dataSnapshot.getValue(User.class);
-                if(currentUser.getAdmin()==true){
-                    reviewDeleteBtn.setVisibility(View.VISIBLE);
-                }
+                Product product = dataSnapshot.getValue(Product.class);
+                prodRHTextView.setText(product.getTitle().toString());
             }
 
             @Override
@@ -101,13 +102,6 @@ public class ReviewList extends ArrayAdapter<Review> {
 
             }
         });
-
-
-        RatingBar indicatorRating = (RatingBar) listViewItem.findViewById(R.id.indicatorRating);
-        indicatorRating.setRating(Float.valueOf(review.getRating()));
-
-
-
 
 
         return listViewItem;

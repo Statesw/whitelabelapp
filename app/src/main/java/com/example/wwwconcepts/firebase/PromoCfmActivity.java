@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.wwwconcepts.firebase.POJOs.Promo;
 import com.example.wwwconcepts.firebase.POJOs.User;
@@ -20,10 +21,12 @@ public class PromoCfmActivity extends AppCompatActivity {
 
 
     private TextView promoCfmTextView, promoCfmCostPtsTextView, promoCfmBalanceTextView;
-    private Button yescfmBtn, cancelCfmBtn;
+    private Button yescfmBtn, cancelCfmBtn, removePromoBtn;
 
     private DatabaseReference promoReference, userReference;
     private FirebaseAuth auth;
+
+    private int costPts, currentPts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,13 +43,16 @@ public class PromoCfmActivity extends AppCompatActivity {
         promoCfmCostPtsTextView = (TextView) findViewById(R.id.promoCfmCostPtsTextView);
         promoCfmBalanceTextView = (TextView) findViewById(R.id.promoCfmBalanceTextView);
 
+        removePromoBtn = (Button) findViewById(R.id.removePromoBtn);
+
         promoReference = FirebaseDatabase.getInstance().getReference("promos").child(promoId);
         promoReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Promo promo = dataSnapshot.getValue(Promo.class);
                 promoCfmTextView.setText(promo.getDescription());
-                promoCfmCostPtsTextView.setText(String.valueOf(promo.getPointsNeeded()) +" points?");
+                costPts = promo.getPointsNeeded();
+                promoCfmCostPtsTextView.setText(String.valueOf(costPts) +" points?");
             }
 
             @Override
@@ -60,7 +66,11 @@ public class PromoCfmActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
-                promoCfmBalanceTextView.setText("(Current Balance: " + String.valueOf(user.getPoints())+" pts)");
+                currentPts = user.getPoints();
+                promoCfmBalanceTextView.setText("(Current Balance: " + String.valueOf(currentPts)+" pts)");
+                if(user.getAdmin()==true){
+                    removePromoBtn.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
@@ -69,6 +79,20 @@ public class PromoCfmActivity extends AppCompatActivity {
             }
         });
 
+
+        yescfmBtn = (Button) findViewById(R.id.yesCfmBtn);
+        yescfmBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(currentPts>=costPts){
+                currentPts-=costPts;
+                userReference.child("points").setValue(currentPts);
+                }
+                else{
+                    Toast.makeText(PromoCfmActivity.this, "Sorry, you do not have enough points to redeem this!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         cancelCfmBtn = (Button) findViewById(R.id.cancelCfmBtn);
         cancelCfmBtn.setOnClickListener(new View.OnClickListener() {
@@ -81,6 +105,14 @@ public class PromoCfmActivity extends AppCompatActivity {
         });
 
 
+        removePromoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                promoReference.removeValue();
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+            }
+        });
 
     }
 }

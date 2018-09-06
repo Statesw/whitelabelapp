@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.wwwconcepts.firebase.Fragments.AllOrdersFragment;
+import com.example.wwwconcepts.firebase.Fragments.AllReviewsFragment;
 import com.example.wwwconcepts.firebase.Fragments.CartFragment;
 import com.example.wwwconcepts.firebase.Fragments.EditProductFragment;
 import com.example.wwwconcepts.firebase.Fragments.ProductDetailsFragment;
@@ -27,7 +28,8 @@ public class MainActivity extends AppCompatActivity implements ProductDetailsFra
         PromotionsFragment.OnFragmentInteractionListener,
         EditProductFragment.OnFragmentInteractionListener,
         CartFragment.OnFragmentInteractionListener,
-        AllOrdersFragment.OnFragmentInteractionListener{
+        AllOrdersFragment.OnFragmentInteractionListener,
+        AllReviewsFragment.OnFragmentInteractionListener{
 
 //    private ActionBar toolbar;
 private Toolbar toolbar;
@@ -96,8 +98,14 @@ private Toolbar toolbar;
                         loadFragment(fragment);
                         toolbar.setTitle("White Label");
                     }
+                    break;
                 case R.id.navigation_profile:
+                    break;
                 case R.id.navigation_promotions:
+                    fragment = new ProfileFragment();
+                    loadFragment(fragment);
+                    toolbar.setTitle("Profile");
+                    break;
             }
 
         }

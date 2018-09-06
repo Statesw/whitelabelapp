@@ -33,6 +33,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -51,11 +56,12 @@ public class ProfileFragment extends Fragment {
 
     private FirebaseAuth auth;
     private ImageView profileImageView;
-    private TextView usernameTextView;
+    private TextView usernameTextView, emailTextView, numReviewsTextView, seeReviewsTextView;
     private EditText urlEditText;
     private ImageButton addPhotoFloatingActionBtn;
     private Button orderHistoryBtn;
     private Toolbar toolbar;
+
 
 
     //uri to store file
@@ -63,6 +69,7 @@ public class ProfileFragment extends Fragment {
 
     //firebase objects
     private StorageReference storageReference;
+    private DatabaseReference userReviewsReference;
 
 
     //constant to track image chooser intent
@@ -116,6 +123,7 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
 
         auth = FirebaseAuth.getInstance();
+        String userId = auth.getCurrentUser().getUid();
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         final Button signOutBtn = (Button) view.findViewById(R.id.signOutBtn);
         signOutBtn.setOnClickListener(new View.OnClickListener() {
@@ -160,6 +168,40 @@ public class ProfileFragment extends Fragment {
                 //onclick> back to orderactivity
             }
         });
+        emailTextView = (TextView) view.findViewById(R.id.emailTextView);
+        numReviewsTextView = (TextView) view.findViewById(R.id.numReviewsTextView);
+        seeReviewsTextView = (TextView) view.findViewById(R.id.seeReviewsTextView);
+
+        emailTextView.setText(auth.getCurrentUser().getEmail());
+
+        userReviewsReference = FirebaseDatabase.getInstance().getReference("users").child(userId).child("reviews");
+        userReviewsReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int reviewCount=0;
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()){
+                    reviewCount++;
+                }
+                numReviewsTextView.setText(String.valueOf(reviewCount));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        seeReviewsTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AllReviewsFragment nextFrag = new AllReviewsFragment();
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frame_container, nextFrag, "tag")
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
 
         return view;
 
