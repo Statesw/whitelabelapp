@@ -35,6 +35,7 @@ import com.example.wwwconcepts.firebase.POJOs.User;
 import com.example.wwwconcepts.firebase.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -65,6 +66,9 @@ public class ProductsFragment extends Fragment {
     private List<Product> products;
 
     private DatabaseReference databaseReference, userReference;
+
+    private FirebaseAuth auth;
+    private FirebaseAnalytics firebaseAnalytics;
 
     //constant to track image chooser intent
     private static final int PICK_IMAGE_REQUEST = 234;
@@ -112,6 +116,7 @@ public class ProductsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_products, container, false);
+
 
 
         productsRecyclerView = view.findViewById(R.id.productsRecyclerView);
@@ -335,6 +340,12 @@ public class ProductsFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(MyViewHolder holder, final int position) {
+            //Create FirebaseAnalytics Instance
+            firebaseAnalytics = FirebaseAnalytics.getInstance(getActivity());
+            auth = FirebaseAuth.getInstance();
+            final String userId = auth.getCurrentUser().getUid();
+            final Bundle analyticsBundle = new Bundle();
+
             final Product product = itemList.get(position);
             holder.name.setText(product.getTitle());
             holder.price.setText("$"+product.getPrice());
@@ -357,6 +368,19 @@ public class ProductsFragment extends Fragment {
                     args.putString("productId", product.getProductId());
                     args.putBoolean("refetch", false);
                     nextFrag.setArguments(args);
+
+                    analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, product.getProductId());
+                    analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, product.getTitle());
+
+                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, analyticsBundle);
+
+                    firebaseAnalytics.setMinimumSessionDuration(5000);
+                    //Sets whether analytics collection is enabled for this app on this device.
+                    firebaseAnalytics.setAnalyticsCollectionEnabled(true);
+
+                    //Sets the user ID property.
+                    firebaseAnalytics.setUserId(userId);
+
 
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.frame_container, nextFrag, "tag")

@@ -29,6 +29,7 @@ import com.example.wwwconcepts.firebase.POJOs.Review;
 import com.example.wwwconcepts.firebase.POJOs.ReviewList;
 import com.example.wwwconcepts.firebase.POJOs.User;
 import com.example.wwwconcepts.firebase.R;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -72,6 +73,7 @@ public class ProductDetailsFragment extends Fragment {
 
     private DatabaseReference databaseReviews, productReference, userReference, cartReference;
     private FirebaseAuth auth;
+    private FirebaseAnalytics firebaseAnalytics;
 
     private String imageUrl, priceString;
 
@@ -213,6 +215,11 @@ public class ProductDetailsFragment extends Fragment {
         addToCartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Create FirebaseAnalytics Instance
+                firebaseAnalytics = FirebaseAnalytics.getInstance(getActivity());
+                final Bundle analyticsBundle = new Bundle();
+
+
                 //read quantity
                 final int quantity = Integer.parseInt(quantityEditText.getText().toString());
                 cartReference = FirebaseDatabase.getInstance().getReference().child("carts").child(userId).child(productId);
@@ -229,6 +236,28 @@ public class ProductDetailsFragment extends Fragment {
                             Item newItem = new Item(productId, quantity);
                             cartReference.setValue(newItem);
                         }
+
+
+                        productReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Product product = dataSnapshot.getValue(Product.class);
+
+                                analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, productId);
+                                analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, product.getTitle());
+                                analyticsBundle.putInt(FirebaseAnalytics.Param.QUANTITY, quantity);
+                                analyticsBundle.putString(FirebaseAnalytics.Param.PRICE, product.getPrice());
+
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+
                     }
 
                     @Override
@@ -237,6 +266,15 @@ public class ProductDetailsFragment extends Fragment {
                     }
                 });
 
+
+                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.ADD_TO_CART, analyticsBundle);
+
+                firebaseAnalytics.setMinimumSessionDuration(5000);
+                //Sets whether analytics collection is enabled for this app on this device.
+                firebaseAnalytics.setAnalyticsCollectionEnabled(true);
+
+                //Sets the user ID property.
+                firebaseAnalytics.setUserId(userId);
 
                 Toast.makeText(getActivity(), "Item Added to Cart!", Toast.LENGTH_LONG).show();
 
