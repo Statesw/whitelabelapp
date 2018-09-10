@@ -60,14 +60,31 @@
             android:text="Add product"
             android:visibility="gone" />
 
-        <TextView
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingTop="10dp"
-            android:text="All Products"
-            android:textColor="#111"
-            android:textSize="16dp" />
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/imageButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:background="@android:drawable/screen_background_light_transparent"
+                android:src="@android:drawable/ic_menu_search" />
+
+            <EditText
+                android:id="@+id/searchEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="Search"
+                android:inputType="textPersonName"
+                android:textSize="14sp" />
+
+        </LinearLayout>
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
@@ -86,11 +103,5 @@
         </android.support.constraint.ConstraintLayout>
 
     </LinearLayout>
-
-    <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </android.support.constraint.ConstraintLayout>
 
 </FrameLayout>

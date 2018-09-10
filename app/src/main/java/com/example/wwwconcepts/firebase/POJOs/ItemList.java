@@ -1,6 +1,8 @@
 package com.example.wwwconcepts.firebase.POJOs;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,7 +96,23 @@ public class ItemList extends ArrayAdapter<Item> {
                 int position = (int)v.getTag();
                 Item item = items.get(position);
                 cartReference = FirebaseDatabase.getInstance().getReference("carts").child(uid).child(item.getProductId());
-                cartReference.removeValue();
+
+                AlertDialog.Builder adb = new AlertDialog.Builder(context);
+                adb.setTitle("Confirmation");
+                adb.setMessage("Are you sure you want to delete this item from your cart?");
+                adb.setNegativeButton("Cancel", null);
+                adb.setPositiveButton("Yes", new AlertDialog.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        //remove item
+
+                        cartReference.removeValue();
+
+                    }
+                });
+                adb.show();
+
             }
         });
         qAddBtn.setTag(position);

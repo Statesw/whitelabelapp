@@ -16,6 +16,8 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,9 +59,9 @@ public class ProductsFragment extends Fragment {
 
     private RecyclerView productsRecyclerView;
     private List<Product> productList;
-    private StoreAdapter mAdapter;
+    private StoreAdapter mAdapter, filteredAdapter;
     private CardView card_view;
-    private EditText titleEditText, priceEditText;
+    private EditText titleEditText, priceEditText, searchEditText;
     private Boolean isAdmin;
 
 
@@ -121,13 +123,11 @@ public class ProductsFragment extends Fragment {
 
         productsRecyclerView = view.findViewById(R.id.productsRecyclerView);
         productList = new ArrayList<>();
-        mAdapter = new StoreAdapter(getActivity(), productList);
 
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 3);
         productsRecyclerView.setLayoutManager(mLayoutManager);
         productsRecyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(8), true));
         productsRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        productsRecyclerView.setAdapter(mAdapter);
         productsRecyclerView.setNestedScrollingEnabled(false);
 
 //        fetchStoreItems();
@@ -226,6 +226,27 @@ public class ProductsFragment extends Fragment {
             }
         });
 
+
+
+        searchEditText = (EditText) view.findViewById(R.id.searchEditText);
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(s.toString()!=null)
+                    filter(s.toString());
+
+            }
+        });
 
 
         return view;
@@ -485,5 +506,46 @@ public class ProductsFragment extends Fragment {
             //display an error if no file is selected
         }
     }
+
+
+    private void filter(final String text){
+        List<Product> filteredProducts= new ArrayList<>();
+
+//        RecyclerView.LayoutManager filteredLayoutManager = new GridLayoutManager(getActivity(), 3);
+//        productsRecyclerView.setLayoutManager(filteredLayoutManager);
+//        productsRecyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(8), true));
+//        productsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+//        productsRecyclerView.setNestedScrollingEnabled(false);
+
+        databaseReference = FirebaseDatabase.getInstance().getReference("products");
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                productList.clear();
+                //iterating through all the nodes
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    //getting
+                    Product product = postSnapshot.getValue(Product.class);
+                    //adding to the list
+                    if(product.getTitle().toLowerCase().contains(text.toLowerCase().trim())) {
+                        productList.add(product);
+                    }
+
+                }
+
+                //creating adapter
+//                ProductList productAdapter = new ProductList(getActivity(), products);
+                StoreAdapter productAdapter = new StoreAdapter(getActivity(), productList);
+                //attaching adapter to the listview
+                productsRecyclerView.setAdapter(productAdapter);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        }
 
 }
