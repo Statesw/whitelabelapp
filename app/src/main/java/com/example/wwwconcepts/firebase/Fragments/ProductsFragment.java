@@ -511,12 +511,6 @@ public class ProductsFragment extends Fragment {
     private void filter(final String text){
         List<Product> filteredProducts= new ArrayList<>();
 
-//        RecyclerView.LayoutManager filteredLayoutManager = new GridLayoutManager(getActivity(), 3);
-//        productsRecyclerView.setLayoutManager(filteredLayoutManager);
-//        productsRecyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(8), true));
-//        productsRecyclerView.setItemAnimator(new DefaultItemAnimator());
-//        productsRecyclerView.setNestedScrollingEnabled(false);
-
         databaseReference = FirebaseDatabase.getInstance().getReference("products");
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override

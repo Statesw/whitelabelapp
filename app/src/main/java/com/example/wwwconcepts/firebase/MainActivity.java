@@ -16,6 +16,7 @@ import com.example.wwwconcepts.firebase.Fragments.AllOrdersFragment;
 import com.example.wwwconcepts.firebase.Fragments.AllReviewsFragment;
 import com.example.wwwconcepts.firebase.Fragments.CartFragment;
 import com.example.wwwconcepts.firebase.Fragments.EditProductFragment;
+import com.example.wwwconcepts.firebase.Fragments.NewsFragment;
 import com.example.wwwconcepts.firebase.Fragments.ProductDetailsFragment;
 import com.example.wwwconcepts.firebase.Fragments.ProductsFragment;
 import com.example.wwwconcepts.firebase.Fragments.ProfileFragment;
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements ProductDetailsFra
         ProductsFragment.OnFragmentInteractionListener,
         ProfileFragment.OnFragmentInteractionListener,
         PromotionsFragment.OnFragmentInteractionListener,
+        NewsFragment.OnFragmentInteractionListener,
         EditProductFragment.OnFragmentInteractionListener,
         CartFragment.OnFragmentInteractionListener,
         AllOrdersFragment.OnFragmentInteractionListener,
@@ -107,6 +109,11 @@ private Toolbar toolbar;
                     loadFragment(fragment);
                     toolbar.setTitle("Profile");
                     return;
+                case R.id.navigation_news:
+                    fragment = new NewsFragment();
+                    loadFragment(fragment);
+                    toolbar.setTitle("News");
+                    return;
 
             }
 
@@ -136,6 +143,11 @@ private Toolbar toolbar;
                     fragment = new ProfileFragment();
                     loadFragment(fragment);
                     toolbar.setTitle("Profile");
+                    return true;
+                case R.id.navigation_news:
+                    fragment = new NewsFragment();
+                    loadFragment(fragment);
+                    toolbar.setTitle("News");
                     return true;
             }
             return false;

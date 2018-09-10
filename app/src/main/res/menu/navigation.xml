@@ -13,6 +13,10 @@
         android:title="@string/title_promotions" />
 
     <item
+        android:id="@+id/navigation_news"
+        android:icon="@drawable/ic_news_white_24dp"
+        android:title="@string/title_news" />
+    <item
         android:id="@+id/navigation_profile"
         android:icon="@drawable/ic_profile_white_24dp"
         android:title="@string/title_profile" />
