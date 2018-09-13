@@ -267,6 +267,8 @@ public class ProductDetailsFragment extends Fragment {
                 });
 
 
+                // NOTE: Event will only show after user base hits 10+, due to privacy issue.
+                // Analytics for SELECT_CONTENT was shown with only 1 user though, unsure about this
                 firebaseAnalytics.logEvent(FirebaseAnalytics.Event.ADD_TO_CART, analyticsBundle);
 
                 firebaseAnalytics.setMinimumSessionDuration(5000);

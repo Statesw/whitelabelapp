@@ -27,7 +27,8 @@
             android:ems="10"
             android:hint="News Title"
             android:inputType="textPersonName"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:visibility="gone" />
 
         <EditText
             android:id="@+id/newsBodyEditText"
@@ -36,27 +37,31 @@
             android:ems="10"
             android:hint="News Body"
             android:inputType="textPersonName"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/addNewsImageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="?attr/actionModePasteDrawable" />
+            android:src="?attr/actionModePasteDrawable"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/newsChooseBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Choose Image" />
+            android:text="Choose Image"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/addNewsBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Publish News"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:visibility="gone" />
 
         <ListView
             android:id="@+id/newsListView"

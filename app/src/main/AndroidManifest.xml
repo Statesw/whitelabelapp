@@ -12,7 +12,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
@@ -31,17 +30,25 @@
         <activity android:name=".SignupActivity" />
         <activity android:name=".ResetPasswordActivity" />
         <activity android:name=".CheckoutActivity" />
-        <activity android:name=".PromoCfmActivity"></activity>
+        <activity android:name=".PromoCfmActivity" />
+
         <service android:name=".Notification.FirebaseMessaging">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
         <service android:name=".Notification.FirebaseIDService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_products_white_24dp" />
+        <meta-data android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccentBtn" />
+
+        <activity android:name=".NewsletterActivity" />
     </application>
 
 </manifest>

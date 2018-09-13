@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -21,11 +22,14 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.wwwconcepts.firebase.Constants;
+import com.example.wwwconcepts.firebase.NewsletterActivity;
 import com.example.wwwconcepts.firebase.POJOs.News;
 import com.example.wwwconcepts.firebase.POJOs.NewsList;
+import com.example.wwwconcepts.firebase.POJOs.User;
 import com.example.wwwconcepts.firebase.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -52,10 +56,11 @@ public class NewsFragment extends Fragment {
 
     private List<News> newslist;
     private ListView newsListView;
-    private DatabaseReference newsReference;
+    private DatabaseReference newsReference, userReference;
     private EditText newsTitleEditText, newsBodyEditText;
     private ImageView addNewsImageView;
     private Button addNewsBtn, newsChooseBtn;
+    private FirebaseAuth auth;
 
 
     //constant to track image chooser intent
@@ -114,12 +119,39 @@ public class NewsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news, container, false);
 
+        auth = FirebaseAuth.getInstance();
+        String userId = auth.getCurrentUser().getUid();
+
+
+
         newsBodyEditText = (EditText) view.findViewById(R.id.newsBodyEditText);
         newsTitleEditText = (EditText) view.findViewById(R.id.newsTitleEditText);
         addNewsBtn = (Button) view.findViewById(R.id.addNewsBtn);
         newsChooseBtn = (Button) view.findViewById(R.id.newsChooseBtn);
         addNewsImageView = (ImageView) view.findViewById(R.id.addNewsImageView);
         newsListView = (ListView) view.findViewById(R.id.newsListView);
+
+        userReference = FirebaseDatabase.getInstance().getReference().child("users").child(userId);
+        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User currentUser = dataSnapshot.getValue(User.class);
+                if(currentUser.getAdmin()==true){
+                    newsTitleEditText.setVisibility(View.VISIBLE);
+                    newsBodyEditText.setVisibility(View.VISIBLE);
+                    addNewsImageView.setVisibility(View.VISIBLE);
+                    addNewsBtn.setVisibility(View.VISIBLE);
+                    newsChooseBtn.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
 
         storageReference = FirebaseStorage.getInstance().getReference();//edit for : get reference to any upload photo folder
 
@@ -136,6 +168,17 @@ public class NewsFragment extends Fragment {
                     if (getActivity()!=null){
                         final NewsList newsAdapter = new NewsList(getActivity(), newslist);
                         newsListView.setAdapter(newsAdapter);
+
+                        newsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                News news = newsAdapter.getItem(position);
+
+                                Intent intent = new Intent(getActivity(), NewsletterActivity.class);
+
+                                startActivity(intent);
+                            }
+                        });
                     }
 
                 }

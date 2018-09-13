@@ -55,7 +55,14 @@ public class NewsList extends ArrayAdapter<News> {
                         .load(news.getImageUrl())
                         .into(newsItemImageView);
                 newsTitleTextView.setText(news.getTitle());
-                newsBodyTextView.setText(news.getBody());
+                String body = news.getBody();
+                if (body.length()>=50) {
+                    String shortBody = body.substring(0, 50);
+                    newsBodyTextView.setText(shortBody + "...");
+                }
+                else {
+                    newsBodyTextView.setText(body);
+                }
             }
 
             @Override

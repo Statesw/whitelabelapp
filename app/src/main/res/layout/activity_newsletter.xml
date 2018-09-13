@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".NewsletterActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/newsDetailsTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Newsletter Header"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/newsDetailsImageView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="?android:attr/actionModeCopyDrawable" />
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Spicy jalapeno bacon ipsum dolor amet pork tail chicken, ut ad id turducken eu cupim kevin bacon pariatur irure jowl qui. Venison sed pork do alcatra lorem. Tenderloin minim swine, aute cillum pig voluptate non ipsum eiusmod pork chop ham pariatur enim. Consequat chicken laborum shoulder beef ribs. Veniam ea officia eiusmod dolor consectetur porchetta spare ribs ham hock. In nulla cupim fugiat. Shank consequat meatloaf chuck dolor ex veniam kielbasa irure pastrami nulla in duis do spare ribs. \n\n Tempor burgdoggen flank elit commodo jerky. Mollit alcatra kevin ribeye. Jerky burgdoggen ut leberkas, hamburger pork chop prosciutto pork belly landjaeger. Shank burgdoggen culpa cupidatat andouille. Sirloin dolor salami exercitation burgdoggen in incididunt sed ham hock anim elit t-bone fatback pork loin. \n\n Prosciutto tail sirloin cupim. Occaecat exercitation sed laboris sunt ground round fatback laborum ad veniam. Consequat boudin excepteur t-bone, ex laboris ea eiusmod mollit minim sed tri-tip. Quis sausage aute pork, tempor andouille nostrud consequat voluptate non adipisicing sunt. Ribeye officia ullamco jowl ad picanha. \n\n Tongue cow tempor drumstick sint consectetur reprehenderit qui elit kielbasa leberkas beef. Chuck sunt short loin, jowl ut leberkas shank ea. Consectetur elit tempor pork ut laboris short loin tri-tip. Ad esse fatback, aliquip voluptate id culpa quis ea prosciutto. Prosciutto short loin turkey leberkas t-bone ad brisket jerky laborum culpa est laboris. Cupidatat pork chop excepteur strip steak, andouille prosciutto ut kielbasa pancetta. Excepteur shoulder shankle reprehenderit leberkas do short loin tri-tip. \n\n Sausage proident landjaeger, id pig do esse ut cow tongue bacon. Ground round enim ut cupim alcatra incididunt. Consectetur cillum pancetta minim, in pork burgdoggen sausage doner do pork loin. Cow ham meatloaf esse cillum, chicken dolore aliqua bresaola pastrami landjaeger. Pork chop tri-tip pastrami do, prosciutto anim sed beef ribs. Alcatra shank ex, elit exercitation swine kevin dolore. Shank picanha pork, turducken nulla jowl exercitation id. \n\n" />
+        </LinearLayout>
+    </ScrollView>
+</android.support.constraint.ConstraintLayout>
